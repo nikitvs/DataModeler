@@ -26,6 +26,7 @@ set_target_properties(DataModeler
 )
 
 # json
-# find_package(nlohmann_json 3.2.0 REQUIRED)
 target_include_directories(DataModeler PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/json/include)
-# target_link_libraries(DataModeler PRIVATE nlohmann_json::nlohmann_json)
+# определить файл типов данных в директорию сборки
+configure_file( src/types.json 
+                ${CMAKE_CURRENT_BINARY_DIR})

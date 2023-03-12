@@ -1,0 +1,13 @@
+{
+  "mySQL": {
+    "Numeric": {
+      "integer": false
+    }
+  },
+  "PostgreSQL": {
+    "Character": {
+      "varchar": true,
+      "text": false
+    }
+  }
+}
