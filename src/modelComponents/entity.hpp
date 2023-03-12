@@ -1,13 +1,14 @@
 #include <list>
 
-// объявление класса сущности
+// объявление класса атрибута
 class Attribute;
+// объявление класса отношений
+class Relationship;
 
-// класс отношений между сущностями
+// класс сущности
 class Entity
 {
 private:
-
 public:
     Entity();
     // void addAttribute(Attribute);

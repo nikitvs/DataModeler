@@ -1,6 +1,5 @@
-#include "config.hpp"
 #include <fstream>
-#include <iostream>
+#include "config.hpp"
 
 // записывает в поле содержимое json файла
 Config::Config()

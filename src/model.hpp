@@ -7,17 +7,17 @@ class Relationship;
 
 class Model
 {
-public:
-    enum DATABASE_TYPE {mySQL};                     // поддерживаемые СУБД
-    
 private:
-    Model::DATABASE_TYPE m_databaseType;            // СУБД
-    std::list<Entity*> m_entitiesList;              // список сущностей
-    std::list<Relationship*> m_relationshipsList;   // список отношений между сущностями
+    std::list<Entity*> m_entitiesList;                  // список сущностей
+    std::list<Relationship*> m_relationshipsList;       // список отношений между сущностями
 
 public:
-    Model(Model::DATABASE_TYPE);
-    // Model::DATABASE_TYPE getDatabaseType();
-    // void addEntity(const Entity*);
+    Model();
+    void addEntity(Entity* const);                      // добавить сущность в модель
+    void delEntity(Entity* const);                      // удалить сущность из модели (+ связанные отношения)
+    void addRelationship(Relationship* const);          // добавить отношение в модель
+    void delRelationship(Relationship* const);          // удалить отношение из модели
+    const std::list<Entity*> entities();                // получить список сущностей
+    const std::list<Relationship*> relationships();     // получить список отношений
     ~Model();
 };
