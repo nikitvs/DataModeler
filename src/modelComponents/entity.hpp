@@ -1,16 +1,16 @@
-#include <list>
+#pragma once
 
-// объявление класса атрибута
-class Attribute;
-// объявление класса отношений
-class Relationship;
+#include <list>
+#include <string>
 
 // класс сущности
 class Entity
 {
 private:
+    std::string m_name;     // имя сущности
 public:
     Entity();
+    Entity(std::string);
     // void addAttribute(Attribute);
     ~Entity();
 };

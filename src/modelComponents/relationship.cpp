@@ -7,7 +7,7 @@ Relationship::Relationship(Relationship::RELATION_TYPE type, const Entity* entit
     m_entitiesPair.second = entity_2;
 }
 
-const std::pair<const Entity*, const Entity*> Relationship::getEntitiesPair() const
+std::pair<const Entity*, const Entity*> Relationship::getEntitiesPair() const
 {
     return m_entitiesPair;
 }

@@ -1,4 +1,5 @@
 #include "model.hpp"
+#include "modelComponents/entity.hpp"
 #include "modelComponents/relationship.hpp"
 
 Model::Model()
@@ -11,6 +12,20 @@ void Model::addEntity(Entity* const entity)
     m_entitiesList.push_back(entity);
 }
 
+Entity* Model::addEntity()
+{
+    std::string entityDefaultName = "E_";
+    std::string entityNumber = std::to_string(m_entitiesList.size() + 1);
+    return addEntity(entityDefaultName + entityNumber);
+}
+
+Entity* Model::addEntity(std::string name)
+{
+    Entity* entity = new Entity(name);
+    m_entitiesList.push_back(entity);
+    return entity;
+}
+
 // удалить сущность из модели (+ связанные отношения)
 void Model::delEntity(Entity* const entity)
 {
@@ -21,7 +36,7 @@ void Model::delEntity(Entity* const entity)
     // опредедлить отношения для удаления
     for(auto iter = m_relationshipsList.begin(); iter!=m_relationshipsList.end(); ++iter)
     {
-        Relationship* const currentRelationship = static_cast<Relationship*>(*iter);
+        const Relationship* const currentRelationship = static_cast<Relationship*>(*iter);
         if (currentRelationship->getEntitiesPair().first == entity || currentRelationship->getEntitiesPair().second == entity)
         {
             tmpDelRelationList.push_back(*iter);
@@ -47,16 +62,25 @@ void Model::delRelationship(Relationship* const relationship)
 }
 
 // получить список сущностей
-const std::list<Entity*> Model::entities()
+std::list<Entity*> Model::entities()
 {
     return m_entitiesList;
 }
 // получить список отношений
-const std::list<Relationship*> Model::relationships()
+std::list<Relationship*> Model::relationships()
 {
     return m_relationshipsList;
 }
 
+// осфободить память для всех сущностей и отношений
 Model::~Model()
 {
+    for(auto iter = m_entitiesList.begin(); iter!=m_entitiesList.end(); ++iter)
+    {
+        delete *iter;
+    }
+    for(auto iter = m_relationshipsList.begin(); iter!=m_relationshipsList.end(); ++iter)
+    {
+        delete *iter;
+    }
 }

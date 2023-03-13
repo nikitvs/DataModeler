@@ -1,3 +1,5 @@
+#pragma once
+
 #include <list>
 
 // объявление класса сущности
@@ -12,7 +14,7 @@ private:
     Relationship::RELATION_TYPE m_type;                             // тип отношения
     std::pair<const Entity*, const Entity*> m_entitiesPair;         // объекты отношения
 public:
-    const std::pair<const Entity*, const Entity*> getEntitiesPair() const;
+    std::pair<const Entity*, const Entity*> getEntitiesPair() const;
     Relationship(Relationship::RELATION_TYPE, const Entity*, const Entity*);
     ~Relationship();
 };
