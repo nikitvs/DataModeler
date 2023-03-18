@@ -11,6 +11,7 @@ private:
 public:
     Entity();
     Entity(std::string);
+    std::string name() const;
     // void addAttribute(Attribute);
     ~Entity();
 };

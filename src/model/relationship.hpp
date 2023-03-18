@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <string>
 
 // объявление класса сущности
 class Entity;
@@ -13,8 +14,10 @@ public:
 private:
     Relationship::RELATION_TYPE m_type;                             // тип отношения
     std::pair<const Entity*, const Entity*> m_entitiesPair;         // объекты отношения
+    std::string m_name;                                             // имя отношения
 public:
-    std::pair<const Entity*, const Entity*> getEntitiesPair() const;
-    Relationship(Relationship::RELATION_TYPE, const Entity*, const Entity*);
+    Relationship(Relationship::RELATION_TYPE, const Entity*, const Entity*, std::string name);
+    std::pair<std::string, std::string> entitiesPair() const;
+    std::string name() const;
     ~Relationship();
 };

@@ -9,6 +9,11 @@ Entity::Entity(std::string name)
 {
 }
 
+std::string Entity::name() const
+{
+    return m_name;
+}
+
 Entity::~Entity()
 {
 }

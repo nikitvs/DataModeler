@@ -1,9 +1,9 @@
 #include <iostream>
-// #include "modelComponents/attribute.hpp"
-#include "modelComponents/relationship.hpp"
-#include "modelComponents/entity.hpp"
+// #include "model/attribute.hpp"
+#include "model/relationship.hpp"
+#include "model/entity.hpp"
+#include "model/model.hpp"
 #include "config.hpp"
-#include "model.hpp"
 
 int main() 
 {
@@ -37,21 +37,26 @@ int main()
     Config c;
     Model model;
     // добавить сущности
-    Entity* e1 = new Entity;
-    Entity* e2 = new Entity;
-    model.addEntity(e1);
-    model.addEntity(e2);
+    Entity e1 = model.addEntity("Entity_1");
+    Entity e2 = model.addEntity("Entity_2");
 
     // добавить отношение
-    Relationship* r1 = new Relationship(Relationship::RELATION_TYPE::Identifying, e1, e2);
-    model.addRelationship(r1);
+    model.addRelationship(Relationship::RELATION_TYPE::Identifying, e1.name(), e2.name());
+    model.addRelationship(Relationship::RELATION_TYPE::Identifying, e2.name(), e2.name());
 
     // 2 - 1
-    std::cout << model.entities().size() << std::endl << model.relationships().size() << std::endl;
+    std::cout << "Entities: " << model.entities().size() <<  ", relations: " << model.relationships().size() << std::endl;
 
     // 1 - 0
-    model.delEntity(e1);
-    std::cout << model.entities().size() << std::endl << model.relationships().size() << std::endl;
+    model.removeEntity("Entity_1");
+    std::cout << "Entities: " << model.entities().size() <<  ", relations: " << model.relationships().size() << std::endl;
+
+    std::cout << "Second entity name: " << model.entity("Entity_2").name() << std::endl << \
+                "Model first entity name: " << model.entities().front() << std::endl << \
+                "Model first relationship name: " << model.relationships().front() << std::endl << \
+                "Firs relationship entities names pair: " << model.relationship(model.relationships().front()).entitiesPair().first << " " \
+                                                          << model.relationship(model.relationships().front()).entitiesPair().second \
+                << std::endl;
 
     return 0;
 }
