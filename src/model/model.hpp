@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <vector>
 #include <string>
 
 #include "relationship.hpp"
@@ -16,6 +17,13 @@ class Model
 private:
     std::list<Entity*> m_entitiesList;                      // список сущностей
     std::list<Relationship*> m_relationshipsList;           // список отношений между сущностями
+
+    template <class T>
+    void _checkName(const std::list<T*>& list, const std::string name) const;
+    template <class T>
+    std::string _genBaseName(const std::list<T*>& list, const std::string name) const;
+    template <class T>
+    T& _getElement(const std::list<T*>& list, const std::string name) const;
 
 public:
     Model();
@@ -33,8 +41,8 @@ public:
     Relationship& relationship(std::string name);                   // получить сущность
     void removeRelationship(Relationship*);                         // удалить отношение из модели
     void removeRelationship(std::string name);
-    std::list<std::string> entities();                              // получить список имен сущностей
-    std::list<std::string> relationships();                         // получить список имен отношений
+    std::vector<std::string> entities();                            // получить список имен сущностей
+    std::vector<std::string> relationships();                       // получить список имен отношений
     // std::list<Entity*> entities();                                  // получить список сущностей
     // std::list<Relationship*> relationships();                       // получить список отношений
     ~Model();
