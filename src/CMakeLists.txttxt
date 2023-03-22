@@ -1,26 +1,17 @@
-cmake_minimum_required(VERSION 3.5.0)
-project(DataModeler VERSION 0.0.1)
-
-# json
-include_directories(DataModeler PRIVATE ${CMAKE_SOURCE_DIR}/dependencies/json/include)
-# определить файл типов данных в директорию сборки
-configure_file(src/types.json ${CMAKE_CURRENT_BINARY_DIR})
-
-# add_subdirectory(src)
-# add_subdirectory(examples)
+project(DataModeler)
 
 # определить исходники
 file(
     GLOB_RECURSE SOURCES
     LIST_DIRECTORIES false
     RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-    src/*.cpp
+    *.cpp
 )
 file(
     GLOB_RECURSE HEADERS
     LIST_DIRECTORIES false
     RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-    src/*.hpp
+    *.hpp
 )
 
 # определение и настройка таргета
@@ -31,5 +22,7 @@ set_target_properties(DataModeler
     CXX_STANDART_REQUIRED ON
 )
 
-enable_testing()
-add_subdirectory(tests)
+# json
+# target_include_directories(DataModeler PRIVATE ${CMAKE_SOURCE_DIR}/dependencies/json/include)
+# определить файл типов данных в директорию сборки
+configure_file(types.json ${CMAKE_CURRENT_BINARY_DIR})

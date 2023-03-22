@@ -1,17 +1,26 @@
 #include "entity.hpp"
 
-Entity::Entity()
+Entity::Entity(std::string name) : ModelComponent(name)
 {
 }
 
-Entity::Entity(std::string name)
-    :   m_name(name)
-{
-}
+//std::string Entity::name() const
+//{
+//    return m_name;
+//}
 
-std::string Entity::name() const
+Attribute& Entity::addAttribute(std::string typeDomain, std::string name)
 {
-    return m_name;
+    // если пользователь не задал имя
+    if (name.empty())
+        return addAttribute(typeDomain, _genBaseName(m_attributes, typeDomain + "_"));
+    // порождать исключение, когда сущность с таким именем уже есть
+    _checkName(m_attributes, name);
+
+
+    Attribute* attribute = new Attribute(typeDomain, name);
+    m_attributes.push_back(attribute);
+    return *attribute;
 }
 
 Entity::~Entity()

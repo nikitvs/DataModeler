@@ -2,22 +2,23 @@
 
 #include <list>
 #include <string>
+#include "_modelComponent.hpp"
 
 // объявление класса сущности
 class Entity;
 
 // класс отношений между сущностями
-class Relationship
+class Relationship : public ModelComponent
 {
 public:
-    enum RELATION_TYPE {Identifying, NonIdentifying, ManyToMany};   // типы отношений 
+    enum class RELATION_TYPE {Identifying, NonIdentifying, ManyToMany};     // типы отношений 
 private:
-    Relationship::RELATION_TYPE m_type;                             // тип отношения
-    std::pair<const Entity*, const Entity*> m_entitiesPair;         // объекты отношения
-    std::string m_name;                                             // имя отношения
+    Relationship::RELATION_TYPE m_type;                                     // тип отношения
+    std::pair<const Entity*, const Entity*> m_entitiesPair;                 // объекты отношения
+//    std::string m_name;                                                     // имя отношения
 public:
     Relationship(Relationship::RELATION_TYPE, const Entity*, const Entity*, std::string name);
     std::pair<std::string, std::string> entitiesPair() const;
-    std::string name() const;
+//    std::string name() const;
     ~Relationship();
 };

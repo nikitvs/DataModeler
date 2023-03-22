@@ -1,13 +1,11 @@
 #include "attribute.hpp"
 
-Attribute::Attribute()
-{
-}
-
-Attribute::Attribute(std::string, std::string)
+Attribute::Attribute(std::string typeDomain, std::string name)
+    : m_typeDomain(typeDomain)
+    , ModelComponent(name)
 {
 }
 
 Attribute::~Attribute()
 {
-}
+};

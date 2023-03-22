@@ -9,7 +9,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # добавить json
-include_directories(${CMAKE_SOURCE_DIR}/dependencies/json/include)
+# include_directories(${CMAKE_SOURCE_DIR}/dependencies/json/include)
 # определить файл типов данных в директорию сборки
 configure_file(types.json ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -34,13 +34,15 @@ gtest_discover_tests(Tests)
 
 # подключение исходников для тестирования
 target_include_directories(Tests PRIVATE ${CMAKE_SOURCE_DIR}/src/)
+
+# файлы исходников для компиляции в тестах
 target_sources(Tests PRIVATE 
     ../src/model/model.cpp
-    ../src/model/entity.cpp
     ../src/model/relationship.cpp
+    ../src/model/entity.cpp
+    ../src/model/attribute.cpp
 )
 
-# # файлы исходников для компиляции в тестах
 # file(
 #   GLOB_RECURSE SOURCES_FOR_TEST
 #   LIST_DIRECTORIES false
