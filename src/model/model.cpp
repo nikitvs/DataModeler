@@ -1,8 +1,15 @@
 #include <stdexcept>
-#include "model.hpp"
+#include "datamodeler/model/model.hpp"
 
-Model::Model(std::string name) : ModelComponent(name)
+Model::Model(std::string DBMS, std::string name)
+    : m_DBMS(DBMS)
+    , ModelComponent(name)
 {
+}
+
+std::string Model::dbms() const
+{
+    return m_DBMS;
 }
 
 // методы добавления сущности в модель
@@ -21,7 +28,7 @@ Entity& Model::addEntity(std::string name)
 }
 
 // вернуть сущность по имени
-Entity& Model::entity(std::string name)
+Entity& Model::entity(std::string name) const
 {
     return _getElement(m_entitiesList, name);
 }
@@ -60,13 +67,14 @@ Relationship& Model::addRelationship(Relationship::RELATION_TYPE type, std::stri
     // порождать исключение, когда отношение с таким именем уже есть
     _checkName(m_relationshipsList, name);
 
-    Relationship* relationship = new Relationship(type, &entity(entity_1), &entity(entity_2), name);
+    // entity(entity_1).name() - проверка что такая сущность есть
+    Relationship* relationship = new Relationship(type, entity(entity_1).name(), entity(entity_2).name(), name);
     m_relationshipsList.push_back(relationship);
     return *relationship;
 }
 
 // вернуть отношение по имени
-Relationship& Model::relationship(std::string name)
+Relationship& Model::relationship(std::string name) const
 {
     return _getElement(m_relationshipsList, name);
 }
@@ -80,7 +88,7 @@ void Model::removeRelationship(std::string name)
 }
 
 // получить список имен сущностей
-std::vector<std::string> Model::entities()
+std::vector<std::string> Model::entities() const
 {
     std::vector<std::string> names;
     for (auto const& e : m_entitiesList)
@@ -90,7 +98,7 @@ std::vector<std::string> Model::entities()
     return names;
 }
 // получить список имен отношений
-std::vector<std::string> Model::relationships()
+std::vector<std::string> Model::relationships() const
 {
     std::vector<std::string> names;
     for (auto const& r : m_relationshipsList)

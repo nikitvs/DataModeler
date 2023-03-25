@@ -1,10 +1,17 @@
 #include <fstream>
-#include "config.hpp"
+#include "datamodeler/config.hpp"
+
+// инициализация статических полей
+json Config::m_jsonTypes;
 
 // записывает в поле содержимое json файла
 Config::Config()
 {
-    std::ifstream fileInput(m_jsonDatabaseTypesPath);
+}
+
+void Config::initTypes(std::string pathToJson)
+{
+    std::ifstream fileInput(pathToJson);
     m_jsonTypes = json::parse(fileInput);
 }
 
@@ -42,7 +49,7 @@ std::vector<std::string> Config::availableTypes(std::string DBMS, std::string do
 }
 
 // возвращает флаг динамичного размера типа данных
-bool Config::dynamicType(std::string DBMS, std::string domain, std::string type)
+bool Config::isDynamicType(std::string DBMS, std::string domain, std::string type)
 {
     return m_jsonTypes[DBMS][domain][type];
 }

@@ -1,26 +1,24 @@
-# добавить json
-# include_directories(${CMAKE_SOURCE_DIR}/dependencies/json/include)
-# определить файл типов данных в директорию сборки
-configure_file(types.json ${CMAKE_CURRENT_BINARY_DIR})
+project(DataModeler)
 
 # определить исходники
-# file(
-#     GLOB_RECURSE SOURCES
-#     LIST_DIRECTORIES false
-#     RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-#     *.cpp
-# )
-# file(
-#     GLOB_RECURSE HEADERS
-#     LIST_DIRECTORIES false
-#     RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-#     *.hpp
-# )
+file(
+    GLOB_RECURSE SOURCES
+    LIST_DIRECTORIES false
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    *.cpp
+)
 
 # определение и настройка таргета
-add_executable(Examples ${SOURCES} ${HEADERS})
+add_executable(Examples ${SOURCES})
 set_target_properties(Examples
     PROPERTIES
     CXX_STANDART 17
     CXX_STANDART_REQUIRED ON
 )
+
+# подключить библиотеки к таргету
+target_include_directories(Examples PRIVATE ../include)
+target_link_libraries(Examples PRIVATE DataModeler)
+
+# определить файл типов данных в директорию сборки
+configure_file(${CMAKE_SOURCE_DIR}/types.json ${CMAKE_CURRENT_BINARY_DIR})

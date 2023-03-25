@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
-#include "model/model.hpp"
+#include "datamodeler/model/model.hpp"
 
 #include <iostream>
 
 // именование сущностей в модели
 TEST(ModelTests, EntitesNames) {
-    Model m;
+    Model m("mySql");
     
     m.addEntity();
     m.addEntity("SpecialEntity");
@@ -23,7 +23,7 @@ TEST(ModelTests, EntitesNames) {
 
 // именование отношений в модели
 TEST(ModelTests, RelationsNames) {
-    Model m;
+    Model m("mySql");
     m.addEntity("123");
     m.addRelationship(Relationship::RELATION_TYPE::ManyToMany, "123", "123");
     EXPECT_STREQ("R_1", m.relationships().back().c_str());
@@ -34,7 +34,7 @@ TEST(ModelTests, RelationsNames) {
 
 // удаление объектов из модели
 TEST(ModelTests, RemoveEntitiesAndRelations) {
-    Model m;
+    Model m("mySql");
     // удаление сущностей
     m.addEntity("e1");
     m.addEntity("e2");

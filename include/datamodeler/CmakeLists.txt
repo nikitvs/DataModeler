@@ -1,0 +1,2 @@
+set(SOURCES_FOLDER ../src)
+include_directories(PRIVATE ${SOURCES_FOLDER})

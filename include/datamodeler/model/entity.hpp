@@ -16,6 +16,8 @@ public:
     Entity(std::string);
 //    std::string name() const;
     Attribute& addAttribute(std::string typeDomain, std::string name = "");
+    Attribute& attribute(std::string name) const;
+    std::vector<std::string> attributes() const;
     // int addAttribute(std::string typeDomain, std::string name = "");
     // void addAttribute(Attribute);
     ~Entity();

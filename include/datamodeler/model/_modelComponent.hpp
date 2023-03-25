@@ -8,14 +8,13 @@ class ModelComponent
 {
 private:
     std::string m_name;     // имя объекта
+
 public:
     ModelComponent(std::string name) : m_name(name){};
+    ~ModelComponent(){};
+    std::string name() const {return m_name;}
 
-    std::string name() const
-    {
-        return m_name;
-    }
-
+protected:
     // добавить рабочее ограничение : только наследники ModelComponent
     // ---- здесь и далее template используется с указателем и без
     // ---- указатель нужен для разрешения неопределенности при перегрузках функции (здесь ради примера)
@@ -62,5 +61,4 @@ public:
         return *(*res);
     }
 
-    ~ModelComponent(){};
 };

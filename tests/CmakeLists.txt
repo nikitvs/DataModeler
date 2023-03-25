@@ -1,17 +1,4 @@
-# добавить гугл тесты в проект
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings -- # тупа копия с мануала
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-# добавить json
-# include_directories(${CMAKE_SOURCE_DIR}/dependencies/json/include)
-# определить файл типов данных в директорию сборки
-configure_file(types.json ${CMAKE_CURRENT_BINARY_DIR})
+project(DataModeler)
 
 # файлы тестов
 file(
@@ -23,30 +10,28 @@ file(
 
 # таргет всех тестов
 add_executable(Tests ${TEST_SOURCES})
+target_include_directories(Tests PRIVATE ../include)
 
-# подключение гугл тестов к таргету тестов
-target_link_libraries(
-  Tests
-  GTest::gtest_main
+# добавить гугл тесты в проект
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings -- # тупа копия с мануала
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+# подключить библиотеки к таргету
+target_link_libraries(Tests 
+    PRIVATE
+    # подключение гугл тестов к таргету тестов
+    GTest::gtest_main
+    # подключение библиотеки
+    DataModeler
 )
 include(GoogleTest)
 gtest_discover_tests(Tests)
 
-# подключение исходников для тестирования
-target_include_directories(Tests PRIVATE ${CMAKE_SOURCE_DIR}/src/)
-
-# файлы исходников для компиляции в тестах
-target_sources(Tests PRIVATE 
-    ../src/model/model.cpp
-    ../src/model/relationship.cpp
-    ../src/model/entity.cpp
-    ../src/model/attribute.cpp
-)
-
-# file(
-#   GLOB_RECURSE SOURCES_FOR_TEST
-#   LIST_DIRECTORIES false
-#   RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-#   ${CMAKE_SOURCE_DIR}/src/*.cpp
-# )
-# target_sources(Tests PRIVATE ${SOURCES_FOR_TEST})
+# определить файл типов данных в директорию сборки
+configure_file(${CMAKE_SOURCE_DIR}/types.json ${CMAKE_CURRENT_BINARY_DIR})
