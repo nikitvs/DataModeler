@@ -1,5 +1,6 @@
 # окружение
 .vscode
+*.user
 
 # cmake
 build/

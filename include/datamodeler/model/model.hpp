@@ -1,31 +1,31 @@
 #pragma once
-#include <vector>
-#include "entity.hpp"
-#include "relationship.hpp"
-#include "_modelComponent.hpp"
+#include <list>
+#include "../src/model/_modelComponent.hpp"
+
+class Entity;
+class Relationship;
 
 // класс модели БД
 class Model : public ModelComponent
 {
 private:
-    std::list<Entity*> m_entitiesList;                      // список сущностей
-    std::list<Relationship*> m_relationshipsList;           // список отношений между сущностями
+    // std::string m_name;     // имя объекта
+    std::list<Entity*> m_entities;                      // список сущностей
+    std::list<Relationship*> m_relationships;           // список отношений между сущностями
     std::string m_DBMS;
 
 public:
-    Model(std::string DBMS, std::string name = "");
+    Model(std::string DBMS, std::string name);
     std::string dbms() const;
-    Entity& addEntity(std::string name = "");                       // добавить сущность в модель
-    Entity& entity(std::string name) const;                         // получить сущность
-    void removeEntity(std::string name);                            // удалить сущность из модели (+ связанные отношения)
-    Relationship& addRelationship(Relationship::RELATION_TYPE type, // добавить отношение в модель
-                         std::string entity_1, 
-                         std::string entity_2,
-                         std::string name = "");
-    Relationship& relationship(std::string name) const;                // получить сущность
-//    void removeRelationship(Relationship*);                          // удалить отношение из модели
-    void removeRelationship(std::string name);
-    std::vector<std::string> entities() const;                         // получить список имен сущностей
-    std::vector<std::string> relationships() const;                    // получить список имен отношений
+    // std::string name() const;
+    void addEntity(Entity* entity);                       // добавить сущность в модель
+    void deleteEntity(std::string name);                            // удалить сущность из модели (+ связанные отношения)
+    Entity* entity(std::string name) const;                         // получить сущность
+    void addRelationship(Relationship* relationship); // добавить отношение в модель
+    void deleteRelationship(std::string name);   
+    Relationship* relationship(std::string name) const;                // получить сущность              // получить сущность
+    std::vector<std::string> entities() const;
+    std::vector<std::string> relationships() const;                     // получить список имен сущностей
+    // const std::list<Relationship*>& relationships() const;                    // получить список имен отношений
     ~Model();
 };

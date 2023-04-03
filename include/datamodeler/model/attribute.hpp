@@ -1,29 +1,38 @@
 #pragma once
-#include "_modelComponent.hpp"
+#include <vector>
+// #include "_modelComponent.hpp"
+#include "../src/model/_modelComponent.hpp"
 
 class Attribute : public ModelComponent
 {
 private:
+    // std::string m_name;     // имя объекта
     std::string m_typeDomain;
-    std::string m_name;
     std::string m_type;
-    bool m_primaryKey = false;
-    bool m_nullable   = true;
-    int m_length;
+    std::string m_parametersTemplate;   // возможно временное поле
+    std::string m_parameters;
+    bool m_primaryKey = false; // первичный ключ
+    bool m_nullable   = true; // NULL
+    // std::vector<int>* const m_sizeParameters; // параметры размера
+    // std::vector<std::string>* const m_textParameters; // текстовые параметры
 public:
     // enum TYPE_DOMAIN {Numeric, Character, Datetime, Binary};
 
-    Attribute(std::string typeDomain, std::string name = "");
-    bool setNullable(bool);
-    bool nullable() const;
-    void setPrimaryKey(bool);
-    bool primaryKey() const;
-    void setType(std::string type);
+    Attribute(std::string typeDomain, std::string name = "", std::string type = "", std::string parametersTemplate = "");
+    // std::string name() const;
+    void setType(std::string type, std::string parametersTemplate);                 // тип данных
     std::string type() const;
-    void setTypeDomain(std::string type);
-    std::string typeDomain() const;
-    void setLength(int length);
-    int length() const;
+    std::string parametersTemplate() const;         // шаблон параметров
+    void setParameters(std::string parameters);     // параметры
+    std::string parameters() const;
+    void setPrimaryKey(bool);                       // первичный ключ
+    bool primaryKey() const;
+    bool setNullable(bool);                         // NULL
+    bool nullable() const;
+    // void setTypeDomain(std::string type);
+    // std::string typeDomain() const;
+    // std::vector<int>& sizeParameters() const;
+    // std::vector<std::string>& textParameters() const;
     ~Attribute();
 };
 

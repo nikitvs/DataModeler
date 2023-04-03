@@ -1,13 +1,17 @@
 {
   "mySQL": {
     "Numeric": {
-      "integer": false
-    }
-  },
+        "integer": "[ (m) ]",
+        "decimal": "[ (m,d) ]"
+      }
+    },
   "PostgreSQL": {
     "Character": {
-      "varchar": true,
-      "text": false
+        "varchar": "[ (n) ]",
+        "text": ""
+    },
+    "DateTime": {
+        "time": "[ (p) ] [ with time zone | without time zone ]"
     }
   }
 }
