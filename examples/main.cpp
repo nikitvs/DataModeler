@@ -1,13 +1,15 @@
 #include <iostream>
-// #include "model/attribute.hpp"
-#include "datamodeler/model/relationship.hpp"
 #include "datamodeler/model/entity.hpp"
+#include "datamodeler/model/attribute.hpp"
 #include "datamodeler/model/model.hpp"
+#include "datamodeler/model/relationship.hpp"
+#include "datamodeler/model/modelsaver.hpp"
 #include "datamodeler/config.hpp"
 #include "datamodeler/scriptgenerator.hpp"
-#include "datamodeler/modeleditor.hpp"
+//#include "datamodeler/modeleditor.hpp"
+
 // для вывода в консоль кириллицы
-#include <windows.h>
+// #include <windows.h>
 
 void configCheck()
 {
@@ -45,42 +47,49 @@ void configCheck()
 int main()
 {
     // для вывода в консоль кириллицы
-    SetConsoleOutputCP(CP_UTF8);
+    // SetConsoleOutputCP(CP_UTF8);
 
     // считать данные о СУБД
     Config::initTypes("./types.json");
     // проверка методов конфига
-    configCheck();
+//    configCheck();
 
-    std::string DBMS = "PostgreSQL";
-    Model model(DBMS, "Model_1");
+	std::string DBMS = "PostgreSQL";
+	Model model(DBMS, "Model_1");
+	ScriptGenerator sg(model);
 
-    ModelEditor editor(model);
+	model.addEntity(new Entity("E1"));
+	model.addEntity(new Entity("E2"));
+	model.entity("E1")->addAttribute(new Attribute("td", "A1"));
+//	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, "E1", "E1", "R1"));
+//	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, "E1", "E1", "R2"));
 
-    editor.addEntity("Entity_1");
-    editor.addAttrubute("Entity_1", "Character", "varchar");
+//	for (auto const & name : model.relationships())
+//	{
+//		qDebug() << QString::fromStdString(name) << "!";
+//	}
 
-    // a1.setPrimaryKey(true);
-    // std::string type1 = Config::availableTypes(DBMS, domain).at(0);
-    // a1.setType(type1,  Config::typeParmetersTemplate(DBMS, domain, type1));
+	qDebug() << QString::fromStdString(sg.generateScript());
+
+	model.undo();
+
+	qDebug() << "---------------";
+	qDebug() << QString::fromStdString(sg.generateScript());
+
+//	for (auto const & name : model.relationships())
+//	{
+//		qDebug() << QString::fromStdString(name) << "!!";
+//	}
+//	model.addEntity(new Entity("E3"));
+
+//	ModelSaver ms;
+//	ms.saveJson(QJsonArray::fromStringList(QStringList("123")), 0);
+//	ms.saveJson(QJsonArray::fromStringList(QStringList("123")), 1);
+//	ms.saveJson(QJsonArray::fromStringList(QStringList("234")), 2);
+//	qDebug() << ms.maxStep();
+//	ms.loadModel(2);
 
 
-    // Attribute& a2 = e1.addAttribute(domain);
-    // a2.setNullable(false);
-    // std::string type2 = Config::availableTypes(DBMS, domain).at(1);
-    // a2.setType(type2,  Config::typeParmetersTemplate(DBMS, domain, type2));
-    // a2.setParameters("");
-
-    // Entity& e2 = model.addEntity("E_with_attrs2");
-    // std::string domain2 = Config::availableDomains(DBMS).back();
-    // std::cout << domain2 << std::endl;
-    // Attribute& a3 = e2.addAttribute(domain2);
-    // a3.setPrimaryKey(true);
-    // std::string type3 = Config::availableTypes(DBMS, domain).at(1);
-    // a3.setType(type3, Config::typeParmetersTemplate(DBMS, domain, type3));
-
-    ScriptGenerator sGenerator(model);
-    std::cout << sGenerator.generateScript() << std::endl;
 
     return 0;
 }

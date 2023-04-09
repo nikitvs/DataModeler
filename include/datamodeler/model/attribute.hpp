@@ -5,6 +5,7 @@
 
 class Attribute : public ModelComponent
 {
+	Q_OBJECT
 private:
     // std::string m_name;     // имя объекта
     std::string m_typeDomain;
@@ -18,8 +19,16 @@ private:
 public:
     // enum TYPE_DOMAIN {Numeric, Character, Datetime, Binary};
 
-    Attribute(std::string typeDomain, std::string name = "", std::string type = "", std::string parametersTemplate = "");
+	Attribute(std::string typeDomain,
+			  std::string type = "",
+			  std::string parametersTemplate = "",
+			  std::string name = "",
+			  QObject* parent = nullptr);
     // std::string name() const;
+	QJsonObject toJson() const override;
+	static Attribute* fromJson(const QJsonObject& jsonObj, QObject* parent = nullptr);
+	void setTypeDomain(std::string typeDomain, std::string type, std::string parametersTemplate);                 // тип данных
+	std::string typeDomain() const;
     void setType(std::string type, std::string parametersTemplate);                 // тип данных
     std::string type() const;
     std::string parametersTemplate() const;         // шаблон параметров

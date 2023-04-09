@@ -1,8 +1,12 @@
 #include "datamodeler/scriptgenerator.hpp"
-
 #include "datamodeler/model/attribute.hpp"
 #include "datamodeler/model/entity.hpp"
 #include "datamodeler/model/model.hpp"
+
+//#include "scriptgenerator.hpp"
+//#include "model/attribute.hpp"
+//#include "model/entity.hpp"
+//#include "model/model.hpp"
 
 ScriptGenerator::ScriptGenerator(const Model& model)
     : m_model(&model)
@@ -54,6 +58,7 @@ std::string ScriptGenerator::_scriptForEntity(const Entity* const entity) const
         script << closingParenthesis;
     }
     script << endCommand;
+	return script.str();
 }
 
 // вернуть модель
