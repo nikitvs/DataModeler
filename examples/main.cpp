@@ -8,6 +8,8 @@
 #include "datamodeler/scriptgenerator.hpp"
 //#include "datamodeler/modeleditor.hpp"
 
+#include <QTextCodec>
+
 // для вывода в консоль кириллицы
 // #include <windows.h>
 
@@ -58,29 +60,43 @@ int main()
 	Model model(DBMS, "Model_1");
 	ScriptGenerator sg(model);
 
-	model.addEntity(new Entity("E1"));
-	model.addEntity(new Entity("E2"));
-	model.entity("E1")->addAttribute(new Attribute("td", "A1"));
-//	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, "E1", "E1", "R1"));
-//	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, "E1", "E1", "R2"));
+    model.addEntity(new Entity("E1"));
+    model.addEntity(new Entity("E2"));
+    model.entity("E1")->addAttribute(new Attribute("td", "E1A1"));
+	model.entity("E1")->attribute("E1A1")->setPrimaryKey(true);
+	model.entity("E1")->attribute("E1A1")->setParameters("(4) parameter");
+	model.entity("E1")->addAttribute(new Attribute("td", "E1A2"));
+	model.entity("E1")->attribute("E1A2")->setPrimaryKey(false);
+	model.entity("E1")->attribute("E1A2")->setNullable(false);
+	model.entity("E1")->attribute("E1A2")->setParameters("(7, 5)");
+	model.entity("E2")->addAttribute(new Attribute("td", "E2A1"));
+	model.addEntity(new Entity("E3"));
+//    model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, "E1", "E1", "R1"));
+    model.addRelationship(new Relationship(Relationship::RELATION_TYPE::Identifying, "E1", "E2", "R2"));
 
-//	for (auto const & name : model.relationships())
-//	{
-//		qDebug() << QString::fromStdString(name) << "!";
-//	}
+    qDebug("%s", QString::fromStdString(sg.generateScript()).toUtf8().constData());
 
-	qDebug() << QString::fromStdString(sg.generateScript());
+    qDebug() << model.undo();
+    qDebug() << model.undo();
+    qDebug() << model.undo();
+    qDebug() << model.undo();
+    qDebug() << model.undo();
+    qDebug() << model.undo();
+    qDebug() << model.undo();
+    qDebug() << model.undo();
+    qDebug() << model.undo();
+    qDebug() << model.undo();
 
-	model.undo();
+    qDebug() << "";
+    qDebug() << model.undo();
+    qDebug() << "";
 
-	qDebug() << "---------------";
-	qDebug() << QString::fromStdString(sg.generateScript());
+    qDebug() << model.redo();
+    qDebug() << model.redo();
 
-//	for (auto const & name : model.relationships())
-//	{
-//		qDebug() << QString::fromStdString(name) << "!!";
-//	}
-//	model.addEntity(new Entity("E3"));
+    qDebug() << "---------------";
+    qDebug("%s", QString::fromStdString(sg.generateScript()).toUtf8().constData());
+
 
 //	ModelSaver ms;
 //	ms.saveJson(QJsonArray::fromStringList(QStringList("123")), 0);

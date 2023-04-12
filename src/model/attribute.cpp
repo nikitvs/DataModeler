@@ -2,9 +2,9 @@
 //#include "attribute.hpp"
 
 Attribute::Attribute(std::string typeDomain,
+					 std::string name,
 					 std::string type,
 					 std::string parametersTemplate,
-					 std::string name,
 					 QObject* parent)
     : m_typeDomain(typeDomain)
     , m_type(type)
@@ -20,22 +20,22 @@ QJsonObject Attribute::toJson() const
 	jsonObj.insert("type", QString::fromStdString(type()));
 	jsonObj.insert("parametersTemplate", QString::fromStdString(parametersTemplate()));
 	jsonObj.insert("parameters", QString::fromStdString(parameters()));
-	jsonObj.insert("primaryKey", QString::number(primaryKey()));
-	jsonObj.insert("nullable", QString::number(nullable()));
+	jsonObj.insert("primaryKey", QString::fromStdString(_fromBoolToString(primaryKey())));
+	jsonObj.insert("nullable", QString::fromStdString(_fromBoolToString(nullable())));
 	return jsonObj;
 }
 
 Attribute* Attribute::fromJson(const QJsonObject& jsonObj, QObject* parent)
 {
 	Attribute* attribute = new Attribute(jsonObj.value("typeDomain").toString().toStdString(),\
+										 jsonObj.value("name").toString().toStdString(),\
 										 jsonObj.value("type").toString().toStdString(),\
 										 jsonObj.value("parametersTemplate").toString().toStdString(),\
-										 jsonObj.value("name").toString().toStdString(),\
 										 parent);
 	ModelComponent::fromJson<Attribute>(jsonObj, attribute);
 	attribute->setParameters(jsonObj.value("parameters").toString().toStdString());
-	attribute->setPrimaryKey(jsonObj.value("primaryKey").toBool());
-	attribute->setNullable(jsonObj.value("nullable").toBool());
+	attribute->setPrimaryKey(_fromStringToBool(jsonObj.value("primaryKey").toString().toStdString()));
+	attribute->setNullable(_fromStringToBool(jsonObj.value("nullable").toString().toStdString()));
 	return attribute;
 }
 

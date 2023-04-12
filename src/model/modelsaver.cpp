@@ -1,7 +1,7 @@
 #include <QJsonDocument>
 #include <QSqlQuery>
 #include <QSqlError>
-#include "datamodeler/model/ModelSaver.hpp"
+#include "datamodeler/model/modelsaver.hpp"
 
 ModelSaver::ModelSaver()
     : m_table("model")

@@ -30,9 +30,19 @@ void Entity::addAttribute(Attribute* attribute)
 {
     ModelComponent::_addElement(attribute, m_attributes);
 
-	QObject::connect(attribute, &Attribute::_changed, this, &Entity::_changed);
-	emit _changed();
+    QObject::connect(attribute, &Attribute::_changed, this, &Entity::_changed);
+    emit _changed();
 }
+
+//bool Entity::addAttribute(Attribute* attribute)
+//{
+//    bool res = ModelComponent::_addElement(attribute, m_attributes);
+//    if (!res) return res;
+
+//	QObject::connect(attribute, &Attribute::_changed, this, &Entity::_changed);
+//	emit _changed();
+//    return res;
+//}
 
 void Entity::deleteAttribute(std::string name)
 {

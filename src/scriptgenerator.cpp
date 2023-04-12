@@ -1,6 +1,7 @@
 #include "datamodeler/scriptgenerator.hpp"
 #include "datamodeler/model/attribute.hpp"
 #include "datamodeler/model/entity.hpp"
+#include "datamodeler/model/relationship.hpp"
 #include "datamodeler/model/model.hpp"
 
 //#include "scriptgenerator.hpp"
@@ -37,10 +38,10 @@ std::string ScriptGenerator::_attributeParameters(const Attribute* const attribu
 
 std::string ScriptGenerator::_scriptForEntity(const Entity* const entity) const
 {
-    std::string endCommand       = ";\n";
-    std::string endStr           = ",\n";
-    std::string tab              = "    ";
-    std::string openingParenthesis  = "\n(\n";
+	std::string endCommand		   = ";\n";
+	std::string endStr			   = ",\n";
+	std::string tab				   = "    ";
+	std::string openingParenthesis = "\n(\n";
     std::string closingParenthesis = ")";
 
     std::stringstream script;
@@ -51,9 +52,10 @@ std::string ScriptGenerator::_scriptForEntity(const Entity* const entity) const
         script << openingParenthesis;
         for (const auto & curAttributeName : entity->attributes()) {
             const Attribute* curAttribute = entity->attribute(curAttributeName);
-            script << tab << curAttributeName            << " " \
-                    << _attributeType(curAttribute)       << " " \
-                    << _attributeParameters(curAttribute) << (curAttributeName != entity->attributes().back() ? endStr : "\n");
+			script << tab << curAttributeName
+				   << _attributeType(curAttribute) << " "
+				   << _attributeParameters(curAttribute)
+				   << (curAttributeName != entity->attributes().back() ? endStr : "\n");
         }
         script << closingParenthesis;
     }

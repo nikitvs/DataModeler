@@ -49,7 +49,7 @@ protected:
     // ---- здесь и далее template используется с указателем и без
 	// ---- указатель нужен для разрешения неопределенности при перегрузках функции (здесь ради примера)
 
-	template <typename T, typename = typename std::enable_if_t<std::is_base_of<ModelComponent, T>::value, T>>
+	template <typename T, typename std::enable_if_t<std::is_base_of<ModelComponent, T>::value, T>* = nullptr>
 	T* _getElement(const std::list<T*>& elementsList, const std::string elemName) const
 	{
 		auto pointer = *std::find_if(elementsList.begin(), elementsList.end(), [elemName](T* e){return e->name() == elemName;});
@@ -74,8 +74,20 @@ protected:
     template <typename T, typename = typename std::enable_if_t<std::is_base_of<ModelComponent, T>::value, T>>
     void _addElement(T* element, std::list<T*>& elementsList)
     {
-		elementsList.push_back(element);
+        elementsList.push_back(element);
     }
+
+//    template <typename T, typename = typename std::enable_if_t<std::is_base_of<ModelComponent, T>::value, T>>
+//    bool _addElement(T* element, std::list<T*>& elementsList)
+//    {
+//        if (_getElement(elementsList, element->name()) == nullptr) {
+//            elementsList.push_back(element);
+//            return true;
+//        } else {
+//            qWarning() << QString("Warning: Уже есть элемент с именем %1").arg(QString::fromStdString(element->name()));
+//            return false;
+//        }
+//    }
 
     template <typename T, typename = typename std::enable_if_t<std::is_base_of<ModelComponent, T>::value, T>>
     void _deleteElement(T* element, std::list<T*>& elementsList)
@@ -113,15 +125,6 @@ protected:
 		return jsonObj;
 	}
 
-//	template <typename T, typename = typename std::enable_if_t<std::is_base_of<ModelComponent, T>::value, T>>
-//	void fromJson(const QJsonArray& jsonArr, std::list<T*>& elementsList)
-//	{
-//		for (auto const & jsonValue : jsonArr)
-//		{
-//			_addElement(T::fromJson(jsonValue.toObject()), elementsList);
-//		}
-//	}
-
 	template <typename T, typename = typename std::enable_if_t<std::is_base_of<ModelComponent, T>::value, T>>
 	static void fromJson(const QJsonObject& jsonObj, T* modelComponent)
 	{
@@ -129,4 +132,21 @@ protected:
 		modelComponent->setmAdditionalModelParameters(jsonObj.value("additionalModelParameters").toVariant());
 	}
 
+	static std::string _fromBoolToString(const bool par)
+	{
+		if (par) {
+			return "true";
+		} else {
+			return "false";
+		}
+	}
+
+	static bool _fromStringToBool(const std::string par)
+	{
+		if (par == "true") {
+			return true;
+		} else {
+			return false;
+		}
+	}
 };

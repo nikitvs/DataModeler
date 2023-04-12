@@ -3,7 +3,7 @@
 #include <QJsonArray>
 #include "datamodeler/model/model.hpp"
 #include "datamodeler/model/entity.hpp"
-#include "datamodeler/model/attribute.hpp"
+//#include "datamodeler/model/attribute.hpp"
 #include "datamodeler/model/relationship.hpp"
 #include "datamodeler/model/modelsaver.hpp"
 //#include "model.hpp"
@@ -42,13 +42,16 @@ void Model::fromJson(const QJsonObject& jsonObj)
 
 	setName(jsonObj.value("name").toString().toStdString());
 	setmAdditionalModelParameters(jsonObj.value("additionalModelParameters").toVariant());
-	for (auto const & jsonValue : jsonObj.value("entities").toArray())
+
+	QJsonArray entitiesArr = jsonObj.value("entities").toArray();
+	for (QJsonArray::iterator it = entitiesArr.begin(); it != entitiesArr.end(); ++it)
 	{
-		addEntity(Entity::fromJson(jsonValue.toObject(), this));
+		addEntity(Entity::fromJson((*it).toObject(), this));
 	}
-	for (auto const & jsonValue : jsonObj.value("relationships").toArray())
+	QJsonArray relationshipsArr = jsonObj.value("relationships").toArray();
+	for (QJsonArray::iterator it = relationshipsArr.begin(); it != relationshipsArr.end(); ++it)
 	{
-		addRelationship(Relationship::fromJson(jsonValue.toObject(), this));
+		addRelationship(Relationship::fromJson((*it).toObject(), this));
 	}
 
 	QObject::connect(this, &Model::_changed, this, &Model::_saveModel);
@@ -65,8 +68,18 @@ void Model::addEntity(Entity* entity)
     ModelComponent::_addElement(entity, m_entities);
 
 	QObject::connect(entity, &Entity::_changed, this, &Model::_changed);
-	emit _changed();
+    emit _changed();
 }
+
+//bool Model::addEntity(Entity* entity)
+//{
+//    bool res = ModelComponent::_addElement(entity, m_entities);
+//    if (!res) return res;
+
+//	QObject::connect(entity, &Entity::_changed, this, &Model::_changed);
+//	emit _changed();
+//    return res;
+//}
 
 // удалить сущность из модели
 void Model::deleteEntity(std::string name)
@@ -79,7 +92,7 @@ void Model::deleteEntity(std::string name)
 // вернуть сущность по имени
 Entity* Model::entity(std::string name) const
 {
-    return ModelComponent::_getElement(m_entities, name);
+	return ModelComponent::_getElement(m_entities, name);
 }
 
 void Model::addRelationship(Relationship* relationship)
@@ -87,8 +100,18 @@ void Model::addRelationship(Relationship* relationship)
     ModelComponent::_addElement(relationship, m_relationships);
 
 	QObject::connect(relationship, &Relationship::_changed, this, &Model::_changed);
-	emit _changed();
+    emit _changed();
 }
+
+//bool Model::addRelationship(Relationship* relationship)
+//{
+//    bool res = ModelComponent::_addElement(relationship, m_relationships);
+//    if (!res) return res;
+
+//	QObject::connect(relationship, &Relationship::_changed, this, &Model::_changed);
+//	emit _changed();
+//    return res;
+//}
 
 // удалить отношение из модели
 void Model::deleteRelationship(std::string name)
@@ -120,7 +143,7 @@ bool Model::redo()
 {
 	if (m_currentStep < m_modelSaver->maxStep())
 	{
-		const QJsonObject loadedModel = m_modelSaver->loadJson(m_currentStep++);
+		const QJsonObject loadedModel = m_modelSaver->loadJson(++m_currentStep);
 		fromJson(loadedModel);
 		return true;
 	}
@@ -129,7 +152,7 @@ bool Model::redo()
 
 bool Model::undo()
 {
-	if (m_currentStep > 0)
+	if (m_currentStep > 1)
 	{
 		const QJsonObject loadedModel = m_modelSaver->loadJson(--m_currentStep);
 		fromJson(loadedModel);

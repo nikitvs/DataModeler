@@ -41,6 +41,11 @@ Relationship::Relationship(Relationship::RELATION_TYPE type,
     : m_type(type)
 	, ModelComponent(name, parent)
 {
+//    if ((entity_1 == entity_2) && (type == Relationship::RELATION_TYPE::Identifying))
+//    {
+//        throw std::invalid_argument(QString("Невозможно создать циклическую индентифицирующую связь %1").\
+//                                    arg(QString::fromStdString(name)).toStdString());
+//    }
     m_entitiesPair.first  = entity_1;
     m_entitiesPair.second = entity_2;
 }
@@ -53,7 +58,12 @@ const std::pair<std::string, std::string>& Relationship::entitiesPair() const
 bool Relationship::setEntitiesPair(std::string entity_1, std::string entity_2)
 {
 	m_entitiesPair = {entity_1, entity_1};
-	return true;
+    return true;
+}
+
+bool Relationship::isLoop() const
+{
+    return (m_entitiesPair.first == m_entitiesPair.second);
 }
 
 Relationship::RELATION_TYPE Relationship::type() const

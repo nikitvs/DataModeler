@@ -30,6 +30,7 @@ public:
 				 QObject* parent = nullptr);
     const std::pair<std::string, std::string>& entitiesPair() const;
 	bool setEntitiesPair(std::string entity_1, std::string entity_2);
+    bool isLoop() const;
 	Relationship::RELATION_TYPE type() const;
 	bool setType(Relationship::RELATION_TYPE type);
 	QJsonObject toJson() const override;

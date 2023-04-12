@@ -13,16 +13,16 @@ private:
     std::string m_parametersTemplate;   // возможно временное поле
     std::string m_parameters;
     bool m_primaryKey = false; // первичный ключ
-    bool m_nullable   = true; // NULL
+	bool m_nullable   = true; // NULL
     // std::vector<int>* const m_sizeParameters; // параметры размера
     // std::vector<std::string>* const m_textParameters; // текстовые параметры
 public:
     // enum TYPE_DOMAIN {Numeric, Character, Datetime, Binary};
 
 	Attribute(std::string typeDomain,
+			  std::string name = "",
 			  std::string type = "",
 			  std::string parametersTemplate = "",
-			  std::string name = "",
 			  QObject* parent = nullptr);
     // std::string name() const;
 	QJsonObject toJson() const override;
