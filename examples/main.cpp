@@ -1,17 +1,15 @@
 #include <iostream>
+#include "datamodeler/config.hpp"
+#include "datamodeler/model/model.hpp"
 #include "datamodeler/model/entity.hpp"
 #include "datamodeler/model/attribute.hpp"
-#include "datamodeler/model/model.hpp"
 #include "datamodeler/model/relationship.hpp"
-#include "datamodeler/model/modelsaver.hpp"
-#include "datamodeler/config.hpp"
 #include "datamodeler/scriptgenerator.hpp"
-//#include "datamodeler/modeleditor.hpp"
 
 #include <QTextCodec>
 
 // для вывода в консоль кириллицы
-// #include <windows.h>
+#include <windows.h>
 
 void configCheck()
 {
@@ -43,68 +41,54 @@ void configCheck()
     std::cout << std::endl;
 
     // получить шаблон параметров типов данных
-    std::cout << "Шаблон для PostgreSQL - DateTime - time: " << Config::typeParmetersTemplate("PostgreSQL", "DateTime", "time") << std::endl;
+	std::cout << "Шаблон для PostgreSQL - DateTime - time: " <<
+				 Config::typeParmetersTemplate("PostgreSQL", "DateTime", "time") <<
+				 std::endl << std::endl<< std::endl;
 }
 
 int main()
 {
-    // для вывода в консоль кириллицы
-    // SetConsoleOutputCP(CP_UTF8);
+//	setlocale(LC_ALL, "");
+	SetConsoleOutputCP(CP_UTF8);
 
     // считать данные о СУБД
     Config::initTypes("./types.json");
     // проверка методов конфига
-//    configCheck();
+	configCheck();
 
-	std::string DBMS = "PostgreSQL";
-	Model model(DBMS, "Model_1");
-	ScriptGenerator sg(model);
+	// при создании модели задается СУБД
+	Model model(Config::availableDBMS().at(1));
 
-    model.addEntity(new Entity("E1"));
-    model.addEntity(new Entity("E2"));
-    model.entity("E1")->addAttribute(new Attribute("td", "E1A1"));
-	model.entity("E1")->attribute("E1A1")->setPrimaryKey(true);
-	model.entity("E1")->attribute("E1A1")->setParameters("(4) parameter");
-	model.entity("E1")->addAttribute(new Attribute("td", "E1A2"));
-	model.entity("E1")->attribute("E1A2")->setPrimaryKey(false);
-	model.entity("E1")->attribute("E1A2")->setNullable(false);
-	model.entity("E1")->attribute("E1A2")->setParameters("(7, 5)");
-	model.entity("E2")->addAttribute(new Attribute("td", "E2A1"));
-	model.addEntity(new Entity("E3"));
-//    model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, "E1", "E1", "R1"));
-    model.addRelationship(new Relationship(Relationship::RELATION_TYPE::Identifying, "E1", "E2", "R2"));
+	// создается и настраивается сущность
+	model.addEntity(new Entity(), "E1");
+	Entity* e1 = model.entity("E1");
+	e1->setAdditionalModelParameters(QString("(x,y)"));
 
-    qDebug("%s", QString::fromStdString(sg.generateScript()).toUtf8().constData());
+	// создается и настраивается атрибут
+	std::string typeDomain = Config::availableDomains(model.dbms()).at(0);
+	e1->addAttribute(new Attribute(typeDomain, Config::availableTypes(model.dbms(), typeDomain).at(0)), "E1A1");
+	Attribute* e1a1 = e1->attribute("E1A1");
+	e1a1->setPrimaryKey(true);
+	e1a1->setParameters("(4) parameter");
 
-    qDebug() << model.undo();
-    qDebug() << model.undo();
-    qDebug() << model.undo();
-    qDebug() << model.undo();
-    qDebug() << model.undo();
-    qDebug() << model.undo();
-    qDebug() << model.undo();
-    qDebug() << model.undo();
-    qDebug() << model.undo();
-    qDebug() << model.undo();
+	// создается второй атрибут (имя задается по умолчанию)
+	e1->addAttribute(new Attribute(typeDomain, Config::availableTypes(model.dbms(), typeDomain).at(1)));
 
-    qDebug() << "";
-    qDebug() << model.undo();
-    qDebug() << "";
+	// создается отношение (имя задается по умолчанию)
+	model.addEntity(new Entity());
 
-    qDebug() << model.redo();
-    qDebug() << model.redo();
+//	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, {"E1", "E1"}), "R2");
 
-    qDebug() << "---------------";
-    qDebug("%s", QString::fromStdString(sg.generateScript()).toUtf8().constData());
+	// выводится скрипт по модели (!!! потом добавится исключение, когда модель не готова !!!)
+	qDebug("%s", QString::fromStdString(ScriptGenerator::generateScript(model)).toUtf8().constData());
 
+	model.undo();
+	model.undo();
+	model.undo();
+	model.redo();
 
-//	ModelSaver ms;
-//	ms.saveJson(QJsonArray::fromStringList(QStringList("123")), 0);
-//	ms.saveJson(QJsonArray::fromStringList(QStringList("123")), 1);
-//	ms.saveJson(QJsonArray::fromStringList(QStringList("234")), 2);
-//	qDebug() << ms.maxStep();
-//	ms.loadModel(2);
-
+	qDebug() << "---------------";
+	qDebug("%s", QString::fromStdString(ScriptGenerator::generateScript(model)).toUtf8().constData());
 
 
     return 0;

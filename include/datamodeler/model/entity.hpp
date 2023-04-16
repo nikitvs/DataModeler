@@ -1,11 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <string>
-
-// #include "attribute.hpp"
-// #include "_modelComponent.hpp"
-#include "../src/model/_modelComponent.hpp"
+#include "_modelComponent.hpp"
 
 class Attribute;
 
@@ -14,20 +9,18 @@ class Entity : public ModelComponent
 {
 	Q_OBJECT
 private:
-    // std::string m_name;     // имя сущности
-    std::list<Attribute*> m_attributes;
+	std::vector<std::pair<std::string, Attribute*>> m_attributes;		// вектор атрибутов сущности
+
 public:
-	Entity(std::string name, QObject* parent = nullptr);
-    // std::string name() const;
-	QJsonObject toJson() const override;
-	static Entity* fromJson(const QJsonObject& jsonObj, QObject* parent = nullptr);
-    void addAttribute(Attribute* attribute);
-    // void deleteAttribute(Attribute* attribute);
-    void deleteAttribute(std::string name);
-    Attribute* attribute(std::string name) const;
-    std::vector<std::string> attributes() const;
-    // const std::list<Attribute*>& attributes() const;
-    // int addAttribute(std::string typeDomain, std::string name = "");
-    // void addAttribute(Attribute);
+	Entity(QObject* parent = nullptr);									// конструктор
+	void addAttribute(Attribute* attribute, std::string name = "");		// добавить атрибут
+	void deleteAttribute(std::string name);								// удалить атрибут
+	void renameAttribute(std::string oldName, std::string newName);		// переименовать атрибут
+	Attribute* attribute(std::string name) const;						// получить атрибут по указателю
+	std::vector<std::string> attributes() const;						// получить вектор имен атрибутов
+	QJsonObject toJson() const override;								// получить json строку для объекта сущности
+	static Entity* fromJson(const QJsonObject& jsonObj,
+							QObject* parent = nullptr);					// получить объект сущности из json строки
+//	bool isReady() const override;										// проверить готовность сущности
     ~Entity();
 };

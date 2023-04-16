@@ -2,26 +2,17 @@
 #include "datamodeler/model/attribute.hpp"
 #include "datamodeler/model/entity.hpp"
 #include "datamodeler/model/relationship.hpp"
-#include "datamodeler/model/model.hpp"
 
-//#include "scriptgenerator.hpp"
-//#include "model/attribute.hpp"
-//#include "model/entity.hpp"
-//#include "model/model.hpp"
-
-ScriptGenerator::ScriptGenerator(const Model& model)
-    : m_model(&model)
-{
-}
+#include <sstream>
 
 // возвращает тип данных с дополнительными параметрами
-std::string ScriptGenerator::_attributeType(const Attribute* const attribute) const
+std::string ScriptGenerator::_attributeType(const Attribute* const attribute)
 {
-    return attribute->type() + attribute->parameters();
+	return attribute->type() + attribute->parameters();
 }
 
 // возвращает дополнительные параметры
-std::string ScriptGenerator::_attributeParameters(const Attribute* const attribute) const
+std::string ScriptGenerator::_attributeParameters(const Attribute* const attribute)
 {
     std::string parameters;
     if (attribute->primaryKey()){
@@ -36,7 +27,7 @@ std::string ScriptGenerator::_attributeParameters(const Attribute* const attribu
     return parameters;
 }
 
-std::string ScriptGenerator::_scriptForEntity(const Entity* const entity) const
+std::string ScriptGenerator::_scriptForEntity(const std::string& name, const Entity* const entity)
 {
 	std::string endCommand		   = ";\n";
 	std::string endStr			   = ",\n";
@@ -45,14 +36,14 @@ std::string ScriptGenerator::_scriptForEntity(const Entity* const entity) const
     std::string closingParenthesis = ")";
 
     std::stringstream script;
-    script << "CREATE TABLE " << entity->name();
+	script << "CREATE TABLE " << name;
     // если атрибуты есть
     if (entity->attributes().size() > 0)
     {
         script << openingParenthesis;
         for (const auto & curAttributeName : entity->attributes()) {
             const Attribute* curAttribute = entity->attribute(curAttributeName);
-			script << tab << curAttributeName
+			script << tab << curAttributeName << " "
 				   << _attributeType(curAttribute) << " "
 				   << _attributeParameters(curAttribute)
 				   << (curAttributeName != entity->attributes().back() ? endStr : "\n");
@@ -63,26 +54,26 @@ std::string ScriptGenerator::_scriptForEntity(const Entity* const entity) const
 	return script.str();
 }
 
-// вернуть модель
-const Model& ScriptGenerator::model() const
-{
-    return *m_model;
-}
+//// вернуть модель
+//const Model& ScriptGenerator::model() const
+//{
+//    return *m_model;
+//}
 
 // возвращает sql скрипт для создание БД
-std::string ScriptGenerator::generateScript() const
+std::string ScriptGenerator::generateScript(const Model& model)
 {
 // создать скрипт из компонентов
     std::stringstream script;
-    for (const auto & curEntityName : model().entities())
+	for (const auto & curEntityName : model.entities())
     {
-        script << _scriptForEntity(m_model->entity(curEntityName));
+		script << _scriptForEntity(curEntityName, model.entity(curEntityName));
         script << "\n";
     }
 
     return script.str();
 }
 
-ScriptGenerator::~ScriptGenerator()
-{
-}
+//ScriptGenerator::~ScriptGenerator()
+//{
+//}

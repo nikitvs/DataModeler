@@ -1,7 +1,18 @@
 #include <QJsonDocument>
 #include <QSqlQuery>
 #include <QSqlError>
-#include "datamodeler/model/modelsaver.hpp"
+#include "modelsaver.hpp"
+
+void ModelSaver::_createDatabaseContent(const QSqlDatabase& database) const
+{
+	database.exec(QString("CREATE TABLE %1(id INTEGER, %2 TEXT NOT NULL, PRIMARY KEY(id AUTOINCREMENT));").
+				  arg(m_table, m_column));
+}
+
+void ModelSaver::_dropDatabaseContent(const QSqlDatabase& database) const
+{
+	database.exec(QString("drop table %1").arg(m_table));
+}
 
 ModelSaver::ModelSaver()
     : m_table("model")
@@ -17,7 +28,7 @@ ModelSaver::ModelSaver()
         return;
     }
 
-	m_db.exec(QString("CREATE TABLE %1(id INTEGER, %2 TEXT NOT NULL, PRIMARY KEY(id AUTOINCREMENT));").arg(m_table, m_column));
+	ModelSaver::_createDatabaseContent(m_db);
 }
 
 void ModelSaver::saveJson(const QJsonObject& json, int step)
@@ -46,13 +57,8 @@ int ModelSaver::maxStep()
 
 ModelSaver::~ModelSaver()
 {
-    QSqlDatabase db = QSqlDatabase::database();
-
-//	db.exec(QString("delete from %1").arg(m_table));
-//	db.exec(QString("vacuum"));
-
-//	db.exec(QString("drop table %1").arg(m_table));
-
-    if(db.isOpen())
+	QSqlDatabase db = QSqlDatabase::database();
+	ModelSaver::_dropDatabaseContent(db);
+	if(db.isOpen())
         db.close();
 }

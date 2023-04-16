@@ -5,17 +5,17 @@
 #include "datamodeler/model/entity.hpp"
 //#include "datamodeler/model/attribute.hpp"
 #include "datamodeler/model/relationship.hpp"
-#include "datamodeler/model/modelsaver.hpp"
+#include "modelsaver.hpp"
 //#include "model.hpp"
 //#include "entity.hpp"
 //#include "relationship.hpp"
 //#include "modelsaver.hpp"
 
-Model::Model(std::string DBMS, std::string name, QObject* parent)
+Model::Model(std::string DBMS, QObject* parent)
     : m_DBMS(DBMS)
 	, m_currentStep(0)
 	, m_modelSaver(new ModelSaver)
-	, ModelComponent(name, parent)
+	, ModelComponent(parent)
 {
 	QObject::connect(this, &Model::_changed, this, &Model::_saveModel);
 	_saveModel();
@@ -34,24 +34,42 @@ QJsonObject Model::toJson() const
 	return jsonObj;
 }
 
+//bool Model::isReady() const
+//{
+//	bool res = true;
+//	for (const auto & name : entities())
+//	{
+//		bool tmpRes = entity(name)->isReady();
+//		if (!tmpRes) qWarning() << QString("Не настроена сущность %1").arg(QString::fromStdString(name));
+//		res = res && tmpRes;
+//	}
+//	for (const auto & name : relationships())
+//	{
+//		bool tmpRes = relationship(name)->isReady();
+//		if (!tmpRes) qWarning() << QString("Не разрешено отношение manyToMany для %1").arg(QString::fromStdString(name));
+//		res = res && tmpRes;
+//	}
+//	return res;
+//}
+
 void Model::fromJson(const QJsonObject& jsonObj)
 {
 	QObject::disconnect(this, &Model::_changed, this, &Model::_saveModel);
-	ModelComponent::_clearList(m_entities);
-	ModelComponent::_clearList(m_relationships);
 
-	setName(jsonObj.value("name").toString().toStdString());
-	setmAdditionalModelParameters(jsonObj.value("additionalModelParameters").toVariant());
+	ModelComponent::_clearMap(m_entities);
+	ModelComponent::_clearMap(m_relationships);
+
+	ModelComponent::fromJson<Model>(jsonObj, this);
 
 	QJsonArray entitiesArr = jsonObj.value("entities").toArray();
 	for (QJsonArray::iterator it = entitiesArr.begin(); it != entitiesArr.end(); ++it)
 	{
-		addEntity(Entity::fromJson((*it).toObject(), this));
+		addEntity(Entity::fromJson((*it).toObject(), this), Entity::nameFromJson((*it).toObject()));
 	}
 	QJsonArray relationshipsArr = jsonObj.value("relationships").toArray();
 	for (QJsonArray::iterator it = relationshipsArr.begin(); it != relationshipsArr.end(); ++it)
 	{
-		addRelationship(Relationship::fromJson((*it).toObject(), this));
+		addRelationship(Relationship::fromJson((*it).toObject(), this), Relationship::nameFromJson((*it).toObject()));
 	}
 
 	QObject::connect(this, &Model::_changed, this, &Model::_saveModel);
@@ -63,80 +81,70 @@ std::string Model::dbms() const
 }
 
 // методы добавления сущности в модель
-void Model::addEntity(Entity* entity)
+void Model::addEntity(Entity* entity, std::string name)
 {
-    ModelComponent::_addElement(entity, m_entities);
-
+	if (name.empty()) name = _generateObjectName("E_", m_entities);
+	ModelComponent::_addElement(name, entity, m_entities);
 	QObject::connect(entity, &Entity::_changed, this, &Model::_changed);
-    emit _changed();
 }
-
-//bool Model::addEntity(Entity* entity)
-//{
-//    bool res = ModelComponent::_addElement(entity, m_entities);
-//    if (!res) return res;
-
-//	QObject::connect(entity, &Entity::_changed, this, &Model::_changed);
-//	emit _changed();
-//    return res;
-//}
 
 // удалить сущность из модели
 void Model::deleteEntity(std::string name)
 {
-    ModelComponent::_deleteElement(entity(name), m_entities);
+	return ModelComponent::_deleteElement(name, m_entities);
+}
 
-	emit _changed();
+void Model::renameEntity(std::string oldName, std::string newName)
+{
+	return ModelComponent::_renameElement(oldName, newName, m_entities);
 }
 
 // вернуть сущность по имени
 Entity* Model::entity(std::string name) const
 {
-	return ModelComponent::_getElement(m_entities, name);
+	return ModelComponent::_getElement(name, m_entities);
 }
 
-void Model::addRelationship(Relationship* relationship)
+void Model::addRelationship(Relationship* relationship, std::string name)
 {
-    ModelComponent::_addElement(relationship, m_relationships);
+	if (relationship->isLoop() && relationship->type() == Relationship::RELATION_TYPE::Identifying)
+	{
+		throw std::invalid_argument(QString("Warning: Нельзя добавить в модель цикличную идентифицирующую связь %1").
+									arg(QString::fromStdString(name)).toStdString());
+	}
 
+	if (name.empty()) name = _generateObjectName("R_", m_relationships);
+	ModelComponent::_addElement(name, relationship, m_relationships);
 	QObject::connect(relationship, &Relationship::_changed, this, &Model::_changed);
-    emit _changed();
 }
-
-//bool Model::addRelationship(Relationship* relationship)
-//{
-//    bool res = ModelComponent::_addElement(relationship, m_relationships);
-//    if (!res) return res;
-
-//	QObject::connect(relationship, &Relationship::_changed, this, &Model::_changed);
-//	emit _changed();
-//    return res;
-//}
 
 // удалить отношение из модели
 void Model::deleteRelationship(std::string name)
 {
-    ModelComponent::_deleteElement(relationship(name), m_relationships);
+	return ModelComponent::_deleteElement(name, m_relationships);
+}
 
-	emit _changed();
+void Model::renameRelationship(std::string oldName, std::string newName)
+{
+	return ModelComponent::_renameElement(oldName, newName, m_relationships);
 }
 
 // вернуть отношение по имени
 Relationship* Model::relationship(std::string name) const
 {
-    return ModelComponent::_getElement(m_relationships, name);
+	return ModelComponent::_getElement(name, m_relationships);
 }
 
 // получить список имен сущностей
 std::vector<std::string> Model::entities() const
 {
-    return ModelComponent::_getNamesList(m_entities);
+	return ModelComponent::_getNamesVector(m_entities);
 }
 
 // получить список имен отношений
 std::vector<std::string> Model::relationships() const
 {
-    return ModelComponent::_getNamesList(m_relationships);
+	return ModelComponent::_getNamesVector(m_relationships);
 }
 
 bool Model::redo()
@@ -165,8 +173,8 @@ bool Model::undo()
 // осфободить память для всех сущностей и отношений
 Model::~Model()
 {
-    ModelComponent::_clearList(m_entities);
-    ModelComponent::_clearList(m_relationships);
+	ModelComponent::_clearMap(m_entities);
+	ModelComponent::_clearMap(m_relationships);
 
 	delete m_modelSaver;
 }

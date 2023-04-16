@@ -1,8 +1,8 @@
 #pragma once
-#include <list>
-#include <QJsonObject>
-#include "../src/model/_modelComponent.hpp"
 
+#include "_modelComponent.hpp"
+
+// объявление классов модели
 class Entity;
 class Relationship;
 class ModelSaver;
@@ -12,34 +12,33 @@ class Model : public ModelComponent
 {
 	Q_OBJECT
 private:
-    std::list<Entity*> m_entities;                      // список сущностей
-    std::list<Relationship*> m_relationships;           // список отношений между сущностями
-    std::string m_DBMS;
-	int m_currentStep;
-	ModelSaver* m_modelSaver;
+	std::vector<std::pair<std::string, Entity*>> m_entities;				// вектор сущностей
+	std::vector<std::pair<std::string, Relationship*>> m_relationships;     // вектор отношений между сущностями
+	std::string m_DBMS;														// СУБД
+	int m_currentStep;														// текущий шаг модели
+	ModelSaver* m_modelSaver;												// инструмент сохранения состояний модели
 
-//private:
-//	void fromJson();
+	void fromJson(const QJsonObject& jsonObj);		//восстановить модель из json строки
 
 private slots:
-	void _saveModel();
-
-private:
-	void fromJson(const QJsonObject& jsonObj);
+	void _saveModel();								// сохраняет текущее состояние модели
 
 public:
-	Model(std::string DBMS, std::string name, QObject* parent = nullptr);
-	std::string dbms() const;
-    void addEntity(Entity* entity);                       // добавить сущность в модель
-    void deleteEntity(std::string name);                            // удалить сущность из модели (+ связанные отношения)
-    Entity* entity(std::string name) const;                         // получить сущность
-    void addRelationship(Relationship* relationship); // добавить отношение в модель
-    void deleteRelationship(std::string name);   
-    Relationship* relationship(std::string name) const;                // получить сущность              // получить сущность
-    std::vector<std::string> entities() const;
-	std::vector<std::string> relationships() const;                     // получить список имен сущностей
-	bool redo();
-	bool undo();
-	QJsonObject toJson() const override;
+	Model(std::string DBMS, QObject* parent = nullptr);							// конструктор (задается СУБД)
+	std::string dbms() const;													// получить СУБД
+	void addEntity(Entity* entity, std::string name = "");						// добавить сущность
+	void deleteEntity(std::string name);										// удалить сущность
+	void renameEntity(std::string oldName, std::string newName);				// переимновать сущность
+	Entity* entity(std::string name) const;										// получить сущность
+	std::vector<std::string> entities() const;									// получить список имен сущностей
+	void addRelationship(Relationship* relationship, std::string name = "");	// добавить отношение
+	void deleteRelationship(std::string name);									// удалить отношение
+	void renameRelationship(std::string oldName, std::string newName);			// переимновать отношение
+	Relationship* relationship(std::string name) const;							// получить отношение
+	std::vector<std::string> relationships() const;								// получить список имен отношений
+	bool undo();							// вернуться на шаг назад (максимум до 1-го)
+	bool redo();							// повторить шаг (максимум до последнего)
+	QJsonObject toJson() const override;	// получить json объект из объекта модели
+//	bool isReady() const override;			// проверить готовность модели для формирования скрипта
     ~Model();
 };

@@ -1,7 +1,5 @@
 #include "datamodeler/model/relationship.hpp"
 
-//#include "relationship.hpp"
-
 std::string Relationship::_enumToString(RELATION_TYPE type)
 {
 	switch (type) {
@@ -34,21 +32,12 @@ Relationship::RELATION_TYPE Relationship::_stringToEnum(std::string type)
 }
 
 Relationship::Relationship(Relationship::RELATION_TYPE type,
-						   std::string entity_1,
-						   std::string entity_2,
-						   std::string name,
+						   std::pair<std::string, std::string> entitiesPair,
 						   QObject* parent)
     : m_type(type)
-	, ModelComponent(name, parent)
-{
-//    if ((entity_1 == entity_2) && (type == Relationship::RELATION_TYPE::Identifying))
-//    {
-//        throw std::invalid_argument(QString("Невозможно создать циклическую индентифицирующую связь %1").\
-//                                    arg(QString::fromStdString(name)).toStdString());
-//    }
-    m_entitiesPair.first  = entity_1;
-    m_entitiesPair.second = entity_2;
-}
+	, m_entitiesPair(entitiesPair)
+	, ModelComponent(parent)
+{}
 
 const std::pair<std::string, std::string>& Relationship::entitiesPair() const
 {
@@ -90,13 +79,22 @@ QJsonObject Relationship::toJson() const
 
 Relationship* Relationship::fromJson(const QJsonObject& jsonObj, QObject* parent)
 {
-	Relationship* relationship = new Relationship(_stringToEnum(jsonObj.value("type").toString().toStdString()),\
-												  jsonObj.value("entitiesPair").toArray().at(0).toString().toStdString(),\
-												  jsonObj.value("entitiesPair").toArray().at(1).toString().toStdString(),\
-												  jsonObj.value("name").toString().toStdString());
+	Relationship* relationship = new Relationship(_stringToEnum(jsonObj.value("type").toString().toStdString()),
+												  std::pair<std::string, std::string>(
+												  jsonObj.value("entitiesPair").toArray().at(0).toString().toStdString(),
+												  jsonObj.value("entitiesPair").toArray().at(1).toString().toStdString()));
 	ModelComponent::fromJson<Relationship>(jsonObj, relationship);
 	return relationship;
 }
+
+//bool Relationship::isReady() const
+//{
+//	if (m_type == Relationship::RELATION_TYPE::ManyToMany) {
+//		return false;
+//	} else {
+//		return true;
+//	}
+//}
 
 Relationship::~Relationship()
 {

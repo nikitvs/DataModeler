@@ -1,23 +1,18 @@
 #pragma once
 
-#include <string>
+#include "datamodeler/model/model.hpp"
 
-class Entity;
+// тип атрибута
 class Attribute;
-class Model;
 
 class ScriptGenerator
 {
 private:
-    const Model* m_model;
-    
-    std::string _attributeType(const Attribute* const attribute) const;       // возвращает тип данных с дополнительными параметрами типа
-    std::string _attributeParameters(const Attribute* const attribute) const; // возвращает дополнительные параметры
-    std::string _scriptForEntity(const Entity* const entity) const;
+	static std::string _attributeType(const Attribute* const attribute);       // возвращает тип данных с дополнительными параметрами типа
+	static std::string _attributeParameters(const Attribute* const attribute); // возвращает дополнительные параметры
+	static std::string _scriptForEntity(const std::string& name, const Entity* const entity);	// возвращает скрипт для сущности
+//	static std::vector<std::string> isReady(const Model& model);
 
 public:
-    ScriptGenerator(const Model& model);
-    ~ScriptGenerator();
-    const Model& model() const;             // вернуть модель
-    std::string generateScript() const;     // возвращает sql скрипт для создание БД
+	static std::string generateScript(const Model& model);     // возвращает sql скрипт для создание БД
 };

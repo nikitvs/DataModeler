@@ -1,47 +1,41 @@
 #pragma once
-#include <vector>
-// #include "_modelComponent.hpp"
-#include "../src/model/_modelComponent.hpp"
+#include "_modelComponent.hpp"
 
+// класс атрибута
 class Attribute : public ModelComponent
 {
 	Q_OBJECT
 private:
-    // std::string m_name;     // имя объекта
-    std::string m_typeDomain;
-    std::string m_type;
-    std::string m_parametersTemplate;   // возможно временное поле
-    std::string m_parameters;
-    bool m_primaryKey = false; // первичный ключ
-	bool m_nullable   = true; // NULL
-    // std::vector<int>* const m_sizeParameters; // параметры размера
-    // std::vector<std::string>* const m_textParameters; // текстовые параметры
-public:
-    // enum TYPE_DOMAIN {Numeric, Character, Datetime, Binary};
+	std::string m_typeDomain;			// домен типа данных
+	std::string m_type;					// тип данных
+	std::string m_parametersTemplate;	// шаблон параметров типа данных
+	std::string m_parameters;			// параметры типа данных
+	bool m_primaryKey = false;			// первичный ключ
+	bool m_nullable   = true;			// NULL
 
+public:
 	Attribute(std::string typeDomain,
-			  std::string name = "",
 			  std::string type = "",
 			  std::string parametersTemplate = "",
-			  QObject* parent = nullptr);
-    // std::string name() const;
-	QJsonObject toJson() const override;
-	static Attribute* fromJson(const QJsonObject& jsonObj, QObject* parent = nullptr);
-	void setTypeDomain(std::string typeDomain, std::string type, std::string parametersTemplate);                 // тип данных
-	std::string typeDomain() const;
-    void setType(std::string type, std::string parametersTemplate);                 // тип данных
-    std::string type() const;
-    std::string parametersTemplate() const;         // шаблон параметров
-    void setParameters(std::string parameters);     // параметры
-    std::string parameters() const;
-    void setPrimaryKey(bool);                       // первичный ключ
-    bool primaryKey() const;
-    bool setNullable(bool);                         // NULL
-    bool nullable() const;
-    // void setTypeDomain(std::string type);
-    // std::string typeDomain() const;
-    // std::vector<int>& sizeParameters() const;
-    // std::vector<std::string>& textParameters() const;
+			  QObject* parent = nullptr);					// конструктор (домент типа обязателен)
+	void setTypeDomain(std::string typeDomain,
+					   std::string type,
+					   std::string parametersTemplate);		// задать домен типа данных
+	std::string typeDomain() const;							// получить домен типа данных
+	void setType(std::string type,
+				 std::string parametersTemplate);			// задать тип данных
+	std::string type() const;								// получить тип данных
+	std::string parametersTemplate() const;					// получить шаблон параметров
+	void setParameters(std::string parameters);				// задать параметры типа данных
+	std::string parameters() const;							// получить параметры типа данных
+	void setPrimaryKey(bool);								// задать первичный ключ
+	bool primaryKey() const;								// получить первичный ключ
+	bool setNullable(bool);									// задать значене для NULL
+	bool nullable() const;									// получить значене для NULL
+	QJsonObject toJson() const override;					// превратить объект атрибута в json объект
+	static Attribute* fromJson(const QJsonObject& jsonObj,	// создать объект атрибута из json объекта
+							   QObject* parent = nullptr);
+//	bool isReady() const override;							// проверить готовность атрибута
     ~Attribute();
 };
 

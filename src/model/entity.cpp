@@ -4,7 +4,7 @@
 //#include "entity.hpp"
 //#include "attribute.hpp"
 
-Entity::Entity(std::string name, QObject* parent) : ModelComponent(name, parent)
+Entity::Entity(QObject* parent) : ModelComponent(parent)
 {
 }
 
@@ -17,52 +17,58 @@ QJsonObject Entity::toJson() const
 
 Entity* Entity::fromJson(const QJsonObject& jsonObj, QObject* parent)
 {
-	Entity* entity = new Entity(jsonObj.value("name").toString().toStdString());
+	Entity* entity = new Entity(parent);
 	ModelComponent::fromJson<Entity>(jsonObj, entity);
-	for (auto const & jsonValue : jsonObj.value("attributes").toArray())
+	QJsonArray attributesArr = jsonObj.value("attributes").toArray();
+	for (QJsonArray::iterator it = attributesArr.begin(); it != attributesArr.end(); ++it)
 	{
-		entity->addAttribute(Attribute::fromJson(jsonValue.toObject(), entity));
+		entity->addAttribute(Attribute::fromJson((*it).toObject(), entity), Attribute::nameFromJson((*it).toObject()));
 	}
 	return entity;
 }
 
-void Entity::addAttribute(Attribute* attribute)
+void Entity::addAttribute(Attribute* attribute, std::string name)
 {
-    ModelComponent::_addElement(attribute, m_attributes);
-
-    QObject::connect(attribute, &Attribute::_changed, this, &Entity::_changed);
-    emit _changed();
+	if (name.empty()) name = _generateObjectName("A_", m_attributes);
+	ModelComponent::_addElement(name, attribute, m_attributes);
+	QObject::connect(attribute, &Attribute::_changed, this, &Entity::_changed);
 }
-
-//bool Entity::addAttribute(Attribute* attribute)
-//{
-//    bool res = ModelComponent::_addElement(attribute, m_attributes);
-//    if (!res) return res;
-
-//	QObject::connect(attribute, &Attribute::_changed, this, &Entity::_changed);
-//	emit _changed();
-//    return res;
-//}
 
 void Entity::deleteAttribute(std::string name)
 {
-    ModelComponent::_deleteElement(attribute(name), m_attributes);
+	return ModelComponent::_deleteElement(name, m_attributes);
+}
 
-	emit _changed();
+void Entity::renameAttribute(std::string oldName, std::string newName)
+{
+	return ModelComponent::_renameElement(oldName, newName, m_attributes);
 }
 
 // вернуть атрибут по имени
 Attribute* Entity::attribute(std::string name) const
 {
-    return ModelComponent::_getElement(m_attributes, name);
+	return ModelComponent::_getElement(name, m_attributes);
 }
 
 // получить список имен атрибутов
 std::vector<std::string> Entity::attributes() const
 {
-    return ModelComponent::_getNamesList(m_attributes);
+	return ModelComponent::_getNamesVector(m_attributes);
 }
+
+//bool Entity::isReady() const
+//{
+//	bool res = true;
+//	for (const auto & name : attributes())
+//	{
+//		bool tmpRes = attribute(name)->isReady();
+//		if (!tmpRes) qWarning() << QString("Не задан тип для атрибута %1").arg(QString::fromStdString(name));
+//		res = res && tmpRes;
+//	}
+//	return res;
+//}
 
 Entity::~Entity()
 {
+	ModelComponent::_clearMap(m_attributes);
 }

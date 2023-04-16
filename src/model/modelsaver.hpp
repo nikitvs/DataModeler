@@ -9,7 +9,12 @@ class ModelSaver
     QSqlDatabase m_db;
     QString m_table;
     QString m_column;
-    QString m_sequence;
+	QString m_sequence;
+
+private:
+	void _createDatabaseContent(const QSqlDatabase& database) const;
+	void _dropDatabaseContent(const QSqlDatabase& database) const;
+
 public:
 	ModelSaver();
     void close();
