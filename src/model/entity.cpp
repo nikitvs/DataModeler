@@ -56,18 +56,6 @@ std::vector<std::string> Entity::attributes() const
 	return ModelComponent::_getNamesVector(m_attributes);
 }
 
-//bool Entity::isReady() const
-//{
-//	bool res = true;
-//	for (const auto & name : attributes())
-//	{
-//		bool tmpRes = attribute(name)->isReady();
-//		if (!tmpRes) qWarning() << QString("Не задан тип для атрибута %1").arg(QString::fromStdString(name));
-//		res = res && tmpRes;
-//	}
-//	return res;
-//}
-
 Entity::~Entity()
 {
 	ModelComponent::_clearMap(m_attributes);

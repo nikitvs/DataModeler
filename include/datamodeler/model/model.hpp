@@ -39,6 +39,5 @@ public:
 	bool undo();							// вернуться на шаг назад (максимум до 1-го)
 	bool redo();							// повторить шаг (максимум до последнего)
 	QJsonObject toJson() const override;	// получить json объект из объекта модели
-//	bool isReady() const override;			// проверить готовность модели для формирования скрипта
     ~Model();
 };

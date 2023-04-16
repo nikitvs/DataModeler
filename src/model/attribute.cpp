@@ -2,12 +2,11 @@
 //#include "attribute.hpp"
 
 Attribute::Attribute(std::string typeDomain,
-					 std::string type,
-					 std::string parametersTemplate,
+					 std::pair<std::string, std::string> typeAndParametersTemplate,
 					 QObject* parent)
     : m_typeDomain(typeDomain)
-    , m_type(type)
-    , m_parametersTemplate(parametersTemplate)
+	, m_type(typeAndParametersTemplate.first)
+	, m_parametersTemplate(typeAndParametersTemplate.second)
 	, ModelComponent(parent)
 {
 }
@@ -27,8 +26,9 @@ QJsonObject Attribute::toJson() const
 Attribute* Attribute::fromJson(const QJsonObject& jsonObj, QObject* parent)
 {
 	Attribute* attribute = new Attribute(jsonObj.value("typeDomain").toString().toStdString(),
-										 jsonObj.value("type").toString().toStdString(),
-										 jsonObj.value("parametersTemplate").toString().toStdString(),
+										 std::pair<std::string, std::string> (
+											jsonObj.value("type").toString().toStdString(),
+											jsonObj.value("parametersTemplate").toString().toStdString()),
 										 parent);
 	ModelComponent::fromJson<Attribute>(jsonObj, attribute);
 	attribute->setParameters(jsonObj.value("parameters").toString().toStdString());
@@ -38,10 +38,10 @@ Attribute* Attribute::fromJson(const QJsonObject& jsonObj, QObject* parent)
 }
 
 
-void Attribute::setTypeDomain(std::string typeDomain, std::string type, std::string parametersTemplate)
+void Attribute::setTypeDomain(std::string typeDomain, std::pair<std::string, std::string> typeAndParametersTemplate)
 {
 	m_typeDomain = typeDomain;
-	setType(type, parametersTemplate);
+	setType(typeAndParametersTemplate.first, typeAndParametersTemplate.second);
 }
 std::string Attribute::typeDomain() const
 {
@@ -71,6 +71,12 @@ std::string Attribute::parametersTemplate() const
 // доступ к параметрам
 void Attribute::setParameters(std::string parameters)
 {
+	if (!QRegExp(QString::fromStdString(parametersTemplate())).
+				 exactMatch(QString::fromStdString(parameters)))
+	{
+		throw std::invalid_argument(QString("Параметры типа данных не соответствуют шаблону").toStdString());
+	}
+
 	m_parameters = parameters;
 	emit _changed();
 }
@@ -109,15 +115,6 @@ bool Attribute::nullable() const
 {
 	return m_nullable;
 }
-
-//bool Attribute::isReady() const
-//{
-//	if (m_type.empty()) {
-//		return false;
-//	} else {
-//		return true;
-//	}
-//}
 
 Attribute::~Attribute()
 {

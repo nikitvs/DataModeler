@@ -21,6 +21,5 @@ public:
 	QJsonObject toJson() const override;								// получить json строку для объекта сущности
 	static Entity* fromJson(const QJsonObject& jsonObj,
 							QObject* parent = nullptr);					// получить объект сущности из json строки
-//	bool isReady() const override;										// проверить готовность сущности
     ~Entity();
 };

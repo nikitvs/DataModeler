@@ -87,15 +87,6 @@ Relationship* Relationship::fromJson(const QJsonObject& jsonObj, QObject* parent
 	return relationship;
 }
 
-//bool Relationship::isReady() const
-//{
-//	if (m_type == Relationship::RELATION_TYPE::ManyToMany) {
-//		return false;
-//	} else {
-//		return true;
-//	}
-//}
-
 Relationship::~Relationship()
 {
 }

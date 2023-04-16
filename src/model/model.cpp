@@ -1,15 +1,8 @@
 #include <stdexcept>
-#include <QDebug>
-#include <QJsonArray>
 #include "datamodeler/model/model.hpp"
 #include "datamodeler/model/entity.hpp"
-//#include "datamodeler/model/attribute.hpp"
 #include "datamodeler/model/relationship.hpp"
 #include "modelsaver.hpp"
-//#include "model.hpp"
-//#include "entity.hpp"
-//#include "relationship.hpp"
-//#include "modelsaver.hpp"
 
 Model::Model(std::string DBMS, QObject* parent)
     : m_DBMS(DBMS)
@@ -33,24 +26,6 @@ QJsonObject Model::toJson() const
 	jsonObj.insert("relationships", ModelComponent::toJson(m_relationships));
 	return jsonObj;
 }
-
-//bool Model::isReady() const
-//{
-//	bool res = true;
-//	for (const auto & name : entities())
-//	{
-//		bool tmpRes = entity(name)->isReady();
-//		if (!tmpRes) qWarning() << QString("Не настроена сущность %1").arg(QString::fromStdString(name));
-//		res = res && tmpRes;
-//	}
-//	for (const auto & name : relationships())
-//	{
-//		bool tmpRes = relationship(name)->isReady();
-//		if (!tmpRes) qWarning() << QString("Не разрешено отношение manyToMany для %1").arg(QString::fromStdString(name));
-//		res = res && tmpRes;
-//	}
-//	return res;
-//}
 
 void Model::fromJson(const QJsonObject& jsonObj)
 {

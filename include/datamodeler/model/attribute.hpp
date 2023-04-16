@@ -15,27 +15,25 @@ private:
 
 public:
 	Attribute(std::string typeDomain,
-			  std::string type = "",
-			  std::string parametersTemplate = "",
-			  QObject* parent = nullptr);					// конструктор (домент типа обязателен)
+			  std::pair<std::string, std::string> typeAndParametersTemplate = {"", ""},
+			  QObject* parent = nullptr);						// конструктор (домент типа обязателен)
 	void setTypeDomain(std::string typeDomain,
-					   std::string type,
-					   std::string parametersTemplate);		// задать домен типа данных
-	std::string typeDomain() const;							// получить домен типа данных
+					   std::pair<std::string, std::string>
+					   typeAndParametersTemplate = {"", ""});	// задать домен типа данных
+	std::string typeDomain() const;								// получить домен типа данных
 	void setType(std::string type,
-				 std::string parametersTemplate);			// задать тип данных
-	std::string type() const;								// получить тип данных
-	std::string parametersTemplate() const;					// получить шаблон параметров
-	void setParameters(std::string parameters);				// задать параметры типа данных
-	std::string parameters() const;							// получить параметры типа данных
-	void setPrimaryKey(bool);								// задать первичный ключ
-	bool primaryKey() const;								// получить первичный ключ
-	bool setNullable(bool);									// задать значене для NULL
-	bool nullable() const;									// получить значене для NULL
-	QJsonObject toJson() const override;					// превратить объект атрибута в json объект
-	static Attribute* fromJson(const QJsonObject& jsonObj,	// создать объект атрибута из json объекта
+				 std::string parametersTemplate);				// задать тип данных
+	std::string type() const;									// получить тип данных
+	std::string parametersTemplate() const;						// получить шаблон параметров
+	void setParameters(std::string parameters);					// задать параметры типа данных
+	std::string parameters() const;								// получить параметры типа данных
+	void setPrimaryKey(bool);									// задать первичный ключ
+	bool primaryKey() const;									// получить первичный ключ
+	bool setNullable(bool);										// задать значене для NULL
+	bool nullable() const;										// получить значене для NULL
+	QJsonObject toJson() const override;						// превратить объект атрибута в json объект
+	static Attribute* fromJson(const QJsonObject& jsonObj,		// создать объект атрибута из json объекта
 							   QObject* parent = nullptr);
-//	bool isReady() const override;							// проверить готовность атрибута
     ~Attribute();
 };
 

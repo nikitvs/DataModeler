@@ -48,8 +48,6 @@ public:
 		emit _changed();
 	}
 
-//	virtual bool isReady() const = 0;
-
 protected:
     // добавить рабочее ограничение : только наследники ModelComponent
     // ---- здесь и далее template используется с указателем и без

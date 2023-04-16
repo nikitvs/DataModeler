@@ -31,6 +31,5 @@ public:
 	QJsonObject toJson() const override;									// получить json объект для отношения
 	static Relationship* fromJson(const QJsonObject& jsonObj,
 								  QObject* parent = nullptr);				// получить объект отношения из json
-//	bool isReady() const override;											// проверить готовность отношения
     ~Relationship();
 };

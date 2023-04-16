@@ -46,7 +46,20 @@ void configCheck()
 				 std::endl << std::endl<< std::endl;
 }
 
-int main()
+void showGeneratedScript(const Model& model)
+{
+	try {
+		qDebug("%s", QString::fromStdString(ScriptGenerator::generateScript(model)).toUtf8().constData());
+	} catch (std::invalid_argument) {
+		std::cout << "Необходимо доработать модель:" << std::endl;
+		for (const std::string & str : ScriptGenerator::problemsReadyList(model))
+		{
+			std::cout << str << std::endl;
+		}
+	}
+}
+
+int main(int argc, char **argv)
 {
 //	setlocale(LC_ALL, "");
 	SetConsoleOutputCP(CP_UTF8);
@@ -66,21 +79,33 @@ int main()
 
 	// создается и настраивается атрибут
 	std::string typeDomain = Config::availableDomains(model.dbms()).at(0);
-	e1->addAttribute(new Attribute(typeDomain, Config::availableTypes(model.dbms(), typeDomain).at(0)), "E1A1");
+	std::string type = Config::availableTypes(model.dbms(), typeDomain).at(0);
+	e1->addAttribute(new Attribute(typeDomain,
+								   std::pair<std::string, std::string>
+								   (
+									   type,
+									   Config::typeParmetersTemplate(model.dbms(), typeDomain, type))
+								   ), "E1A1");
 	Attribute* e1a1 = e1->attribute("E1A1");
 	e1a1->setPrimaryKey(true);
-	e1a1->setParameters("(4) parameter");
+	e1a1->setParameters("(5,3)");
 
 	// создается второй атрибут (имя задается по умолчанию)
-	e1->addAttribute(new Attribute(typeDomain, Config::availableTypes(model.dbms(), typeDomain).at(1)));
+	type = Config::availableTypes(model.dbms(), typeDomain).at(1);
+	e1->addAttribute(new Attribute(typeDomain,
+								   std::pair<std::string, std::string>
+								   (
+									   type,
+									   Config::typeParmetersTemplate(model.dbms(), typeDomain, type))
+								   ));
 
 	// создается отношение (имя задается по умолчанию)
 	model.addEntity(new Entity());
 
 //	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, {"E1", "E1"}), "R2");
 
-	// выводится скрипт по модели (!!! потом добавится исключение, когда модель не готова !!!)
-	qDebug("%s", QString::fromStdString(ScriptGenerator::generateScript(model)).toUtf8().constData());
+	// выводится скрипт по модели
+	showGeneratedScript(model);
 
 	model.undo();
 	model.undo();
@@ -88,7 +113,7 @@ int main()
 	model.redo();
 
 	qDebug() << "---------------";
-	qDebug("%s", QString::fromStdString(ScriptGenerator::generateScript(model)).toUtf8().constData());
+	showGeneratedScript(model);
 
 
     return 0;

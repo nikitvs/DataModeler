@@ -19,12 +19,13 @@ set_target_properties(Examples
 # подключить библиотеки к таргету
 target_include_directories(Examples PRIVATE ../include)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Sql)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Sql)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Sql Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Sql Widgets)
 target_link_libraries(Examples PRIVATE
     DataModeler
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Sql
+    Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 # определить файл типов данных в директорию сборки
