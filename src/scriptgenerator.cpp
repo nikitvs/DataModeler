@@ -24,32 +24,104 @@ std::string ScriptGenerator::_attributeParameters(const Attribute* const attribu
             parameters += "NOT NULL";
         };
     }
-    return parameters;
+	return parameters;
 }
 
-std::string ScriptGenerator::_scriptForEntity(const std::string& name, const Entity* const entity)
+std::string ScriptGenerator::_scriptForAttribute(const std::string& attributeName, const Attribute* const attribute)
 {
+	std::string tab = "    ";
+
+	std::stringstream script;
+	script << tab
+		   << attributeName << " "
+		   << _attributeType(attribute) << " "
+		   << _attributeParameters(attribute);
+	return script.str();
+}
+
+std::string ScriptGenerator::_scriptForEntity(const std::string& entityName,
+											  const Model& model)
+{
+	const Entity* entity = model.entity(entityName);
+
+	std::vector<std::string> primaryKeysNames;
+	std::vector<std::string> simpleAttributesNames;
+	for (const auto & curAttributeName : entity->attributes()) {
+		if (entity->attribute(curAttributeName)->primaryKey()) {
+			primaryKeysNames.push_back(curAttributeName);
+		} else {
+			simpleAttributesNames.push_back(curAttributeName);
+		}
+	}
+
+	std::vector<std::pair<std::string, Attribute*>> primaryForeignKeys;
+	std::vector<std::pair<std::string, Attribute*>> foreignKeys;
+	for (const auto & curRelationName : model.relationships()) {
+		const Relationship* curRelationship = model.relationship(curRelationName);
+		if (curRelationship->to() == entityName) {
+			for (const auto & curAttributeName : model.entity(curRelationship->from())->attributes())
+			{
+				const Attribute* curAttribute = model.entity(curRelationship->from())->attribute(curAttributeName);
+				if (curAttribute->primaryKey()) {
+					if (curRelationship->type() == Relationship::RELATION_TYPE::Identifying) {
+						primaryForeignKeys.push_back({curAttributeName,
+													  model.entity(curRelationship->from())->attribute(curAttributeName)});
+					} else if (curRelationship->type() == Relationship::RELATION_TYPE::NonIdentifying &&
+							   !curRelationship->isLoop()) {
+						foreignKeys.push_back({curAttributeName,
+											   model.entity(curRelationship->from())->attribute(curAttributeName)});
+					}
+				}
+			}
+
+		}
+	}
+
+
 	std::string endCommand		   = ";\n";
 	std::string endStr			   = ",\n";
-	std::string tab				   = "    ";
 	std::string openingParenthesis = "\n(\n";
-    std::string closingParenthesis = ")";
+	std::string closingParenthesis = ")";
 
-    std::stringstream script;
-	script << "CREATE TABLE " << name;
+	std::stringstream script;
+	script << "CREATE TABLE " << entityName;
+
     // если атрибуты есть
-    if (entity->attributes().size() > 0)
-    {
+	int attributesCount = primaryKeysNames.size() + primaryForeignKeys.size() +
+						  foreignKeys.size()      + simpleAttributesNames.size();
+	if (attributesCount > 0)
+	{
         script << openingParenthesis;
-        for (const auto & curAttributeName : entity->attributes()) {
-            const Attribute* curAttribute = entity->attribute(curAttributeName);
-			script << tab << curAttributeName << " "
-				   << _attributeType(curAttribute) << " "
-				   << _attributeParameters(curAttribute)
-				   << (curAttributeName != entity->attributes().back() ? endStr : "\n");
-        }
+
+		std::stringstream attributesScript;
+		for (const auto & curAttributeName : primaryKeysNames) {
+			attributesScript << _scriptForAttribute(curAttributeName, entity->attribute(curAttributeName)) << endStr;
+		}
+		for (const auto & curAttributePair : primaryForeignKeys) {
+			attributesScript << _scriptForAttribute(curAttributePair.first, curAttributePair.second) << endStr;
+		}
+		for (const auto & curAttributePair : foreignKeys) {
+			attributesScript << _scriptForAttribute(curAttributePair.first, curAttributePair.second) << endStr;
+		}
+		for (const auto & curAttributeName : simpleAttributesNames) {
+			attributesScript << _scriptForAttribute(curAttributeName, entity->attribute(curAttributeName)) << endStr;
+		}
+
+		std::string tmp = attributesScript.str();
+		tmp.resize(tmp.size() - endStr.size());
+		script << tmp << "\n";
         script << closingParenthesis;
     }
+
+//	if (primaryForeignKeys.size() + primaryForeignKeys.size() > 0)
+//	{
+//		script << "ALTER TABLE " << entityName << "\n";
+//		for (const auto & curAttributePair : foreignKeys) {
+//			script << "    " << "ADD FOREIGN KEY" << " "
+//				   << "(" << curAttributePair.first << ")" << " "
+//				   << "REFERENCES " << ;
+//	}
+
     script << endCommand;
 	return script.str();
 }
@@ -87,12 +159,6 @@ std::list<std::string> ScriptGenerator::problemsReadyList(const Model& model)
 	return problemsList;
 }
 
-//// вернуть модель
-//const Model& ScriptGenerator::model() const
-//{
-//    return *m_model;
-//}
-
 // возвращает sql скрипт для создание БД
 std::string ScriptGenerator::generateScript(const Model& model)
 {
@@ -105,13 +171,9 @@ std::string ScriptGenerator::generateScript(const Model& model)
     std::stringstream script;
 	for (const auto & curEntityName : model.entities())
     {
-		script << _scriptForEntity(curEntityName, model.entity(curEntityName));
+		script << _scriptForEntity(curEntityName, model);
         script << "\n";
     }
 
     return script.str();
 }
-
-//ScriptGenerator::~ScriptGenerator()
-//{
-//}

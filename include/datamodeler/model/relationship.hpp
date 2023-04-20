@@ -26,6 +26,8 @@ public:
 	const std::pair<std::string, std::string>& entitiesPair() const;		// получить объекты отношения
 	bool setEntitiesPair(std::string entity_1, std::string entity_2);		// задать объекты отношения
 	bool isLoop() const;													// отношение сущности самой на себя?
+	std::string from() const;												// отношение ОТ данной сущности
+	std::string to() const;													// отношение К данной сущности
 	Relationship::RELATION_TYPE type() const;								// получить тип отношения
 	bool setType(Relationship::RELATION_TYPE type);							// задать ти отношения
 	QJsonObject toJson() const override;									// получить json объект для отношения

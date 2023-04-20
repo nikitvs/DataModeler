@@ -11,8 +11,10 @@ class ScriptGenerator
 private:
 	static std::string _attributeType(const Attribute* const attribute);		// возвращает тип данных с дополнительными параметрами типа
 	static std::string _attributeParameters(const Attribute* const attribute);	// возвращает дополнительные параметры
+	static std::string _scriptForAttribute(const std::string& attributeName,
+										   const Attribute* const attribute);
 	static std::string _scriptForEntity(const std::string& name,
-										const Entity* const entity);			// возвращает скрипт для сущности
+										const Model& model);			// возвращает скрипт для сущности
 
 public:
 	static std::list<std::string> problemsReadyList(const Model& model);	// возвращает список проблем генерации

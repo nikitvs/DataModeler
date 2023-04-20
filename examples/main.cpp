@@ -92,17 +92,27 @@ int main(int argc, char **argv)
 
 	// создается второй атрибут (имя задается по умолчанию)
 	type = Config::availableTypes(model.dbms(), typeDomain).at(1);
-	e1->addAttribute(new Attribute(typeDomain,
+
+	Entity* e2 = new Entity();
+	model.addEntity(e2);
+	e2->addAttribute(new Attribute(typeDomain,
 								   std::pair<std::string, std::string>
 								   (
 									   type,
 									   Config::typeParmetersTemplate(model.dbms(), typeDomain, type))
 								   ));
-
 	// создается отношение (имя задается по умолчанию)
-	model.addEntity(new Entity());
+	e2->addAttribute(new Attribute(typeDomain,
+								   std::pair<std::string, std::string>
+								   (
+									   type,
+									   Config::typeParmetersTemplate(model.dbms(), typeDomain, type))
+								   ), "A1");
+	e2->attribute("A1")->setPrimaryKey(true);
 
-//	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, {"E1", "E1"}), "R2");
+
+	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::Identifying, {"E_2", "E1"}), "R2");
+	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, {"E1", "E1"}));
 
 	// выводится скрипт по модели
 	showGeneratedScript(model);

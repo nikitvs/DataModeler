@@ -52,7 +52,17 @@ bool Relationship::setEntitiesPair(std::string entity_1, std::string entity_2)
 
 bool Relationship::isLoop() const
 {
-    return (m_entitiesPair.first == m_entitiesPair.second);
+	return (m_entitiesPair.first == m_entitiesPair.second);
+}
+
+std::string Relationship::from() const
+{
+	return m_entitiesPair.first;
+}
+
+std::string Relationship::to() const
+{
+	return m_entitiesPair.second;
 }
 
 Relationship::RELATION_TYPE Relationship::type() const

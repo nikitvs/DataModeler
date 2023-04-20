@@ -86,6 +86,10 @@ void Model::addRelationship(Relationship* relationship, std::string name)
 	{
 		throw std::invalid_argument(QString("Warning: Нельзя добавить в модель цикличную идентифицирующую связь %1").
 									arg(QString::fromStdString(name)).toStdString());
+	} else if (!entity(relationship->from()) || !entity(relationship->to()))
+	{
+		throw std::invalid_argument(QString("Warning: Нельзя добавить в модель связь %1 для несуществующих сущностей").
+									arg(QString::fromStdString(name)).toStdString());
 	}
 
 	if (name.empty()) name = _generateObjectName("R_", m_relationships);
