@@ -115,6 +115,7 @@ int main(int argc, char **argv)
 	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, {"E1", "E1"}));
 
 	// выводится скрипт по модели
+	qDebug() << "" << "------Before---------" << "";
 	showGeneratedScript(model);
 
 	model.undo();
@@ -122,7 +123,7 @@ int main(int argc, char **argv)
 	model.undo();
 	model.redo();
 
-	qDebug() << "---------------";
+	qDebug() << "" << "------After----------" << "";
 	showGeneratedScript(model);
 
 
