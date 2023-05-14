@@ -65,6 +65,21 @@ protected:
 		}
 	}
 
+	template <typename T, typename std::enable_if_t<std::is_base_of<ModelComponent, T>::value, T>* = nullptr>
+	std::string _getElement(const T* elem, const std::vector<std::pair<std::string, T*>>& pairsVector) const
+	{
+		std::string elemName = "";
+		for (auto const pair : pairsVector)
+		{
+			if (pair.second == elem)
+			{
+				elemName = pair.first;
+			}
+		}
+
+		return elemName;
+	}
+
     template <typename T, typename = typename std::enable_if_t<std::is_base_of<ModelComponent, T>::value, T>>
 	std::vector<std::string> _getNamesVector(const std::vector<std::pair<std::string, T*>>& pairsVector) const
 	{

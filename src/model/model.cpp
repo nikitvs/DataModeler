@@ -118,6 +118,11 @@ Entity* Model::entity(std::string name) const
 	return ModelComponent::_getElement(name, m_entities);
 }
 
+std::string Model::entityName(const Entity* entity) const
+{
+	return ModelComponent::_getElement(entity, m_entities);
+}
+
 void Model::addRelationship(Relationship* relationship, std::string name)
 {
 	if (relationship->isLoop() && relationship->type() == Relationship::RELATION_TYPE::Identifying)
@@ -150,6 +155,11 @@ void Model::renameRelationship(std::string oldName, std::string newName)
 Relationship* Model::relationship(std::string name) const
 {
 	return ModelComponent::_getElement(name, m_relationships);
+}
+
+std::string Model::relationshipName(const Relationship* relationship) const
+{
+	return ModelComponent::_getElement(relationship, m_relationships);
 }
 
 // получить список имен сущностей

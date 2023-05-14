@@ -30,11 +30,13 @@ public:
 	void deleteEntity(std::string name);										// удалить сущность
 	void renameEntity(std::string oldName, std::string newName);				// переимновать сущность
 	Entity* entity(std::string name) const;										// получить сущность
+	std::string entityName(const Entity* entity) const;							// получить имя сущности
 	std::vector<std::string> entities() const;									// получить список имен сущностей
 	void addRelationship(Relationship* relationship, std::string name = "");	// добавить отношение
 	void deleteRelationship(std::string name);									// удалить отношение
 	void renameRelationship(std::string oldName, std::string newName);			// переимновать отношение
 	Relationship* relationship(std::string name) const;							// получить отношение
+	std::string relationshipName(const Relationship* relationship) const;		// получить имя отношения
 	std::vector<std::string> relationships() const;								// получить список имен отношений
 	bool undo();							// вернуться на шаг назад (максимум до 1-го)
 	bool redo();							// повторить шаг (максимум до последнего)

@@ -76,6 +76,7 @@ int main(int argc, char **argv)
 	// создается и настраивается сущность
 	model->addEntity(new Entity(), "E1");
 	Entity* e1 = model->entity("E1");
+//	qDebug() << QString::fromStdString(model->entityName(e1));
 	e1->Entity::setAdditionalModelParameters(QString("(x,y)"));
 
 	// создается и настраивается атрибут

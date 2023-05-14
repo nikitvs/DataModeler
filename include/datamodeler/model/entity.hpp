@@ -17,6 +17,7 @@ public:
 	void deleteAttribute(std::string name);								// удалить атрибут
 	void renameAttribute(std::string oldName, std::string newName);		// переименовать атрибут
 	Attribute* attribute(std::string name) const;						// получить атрибут по указателю
+	std::string attributeName(const Attribute* attribute) const;		// получить имя атрибута
 	std::vector<std::string> attributes() const;						// получить вектор имен атрибутов
 	QJsonObject toJson() const override;								// получить json строку для объекта сущности
 	static Entity* fromJson(const QJsonObject& jsonObj,

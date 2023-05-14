@@ -36,6 +36,6 @@ target_link_libraries(DataModeler PRIVATE
 #qt5_use_modules(DataModeler Core)
 
 # определить файл типов данных в директорию сборки
-configure_file(${CMAKE_SOURCE_DIR}/types.json ${CMAKE_CURRENT_BINARY_DIR})
+#configure_file(${CMAKE_SOURCE_DIR}/types.json ${CMAKE_CURRENT_BINARY_DIR})
 # определить файл бд в директорию сборки
 #configure_file(${CMAKE_SOURCE_DIR}/modelDatabase.db ${CMAKE_CURRENT_BINARY_DIR})

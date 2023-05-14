@@ -50,6 +50,11 @@ Attribute* Entity::attribute(std::string name) const
 	return ModelComponent::_getElement(name, m_attributes);
 }
 
+std::string Entity::attributeName(const Attribute* attribute) const
+{
+	return ModelComponent::_getElement(attribute, m_attributes);
+}
+
 // получить список имен атрибутов
 std::vector<std::string> Entity::attributes() const
 {
