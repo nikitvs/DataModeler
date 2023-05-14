@@ -39,5 +39,7 @@ public:
 	bool undo();							// вернуться на шаг назад (максимум до 1-го)
 	bool redo();							// повторить шаг (максимум до последнего)
 	QJsonObject toJson() const override;	// получить json объект из объекта модели
+	void save(std::string fileFullName) const; //сохраняет модель в файл
+	static Model* load(std::string fileFullName); //загружает модель из файла (репозиторий перезаписывается!!!!!)
     ~Model();
 };

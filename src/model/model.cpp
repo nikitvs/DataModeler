@@ -1,8 +1,10 @@
 #include <stdexcept>
+#include <fstream>
 #include "datamodeler/model/model.hpp"
 #include "datamodeler/model/entity.hpp"
 #include "datamodeler/model/relationship.hpp"
 #include "modelsaver.hpp"
+#include "QJsonDocument"
 
 Model::Model(std::string DBMS, QObject* parent)
     : m_DBMS(DBMS)
@@ -22,9 +24,43 @@ void Model::_saveModel()
 QJsonObject Model::toJson() const
 {
 	QJsonObject jsonObj = ModelComponent::toJson();
+	jsonObj.insert("dbms", QString::fromStdString(m_DBMS));
 	jsonObj.insert("entities", ModelComponent::toJson(m_entities));
 	jsonObj.insert("relationships", ModelComponent::toJson(m_relationships));
 	return jsonObj;
+}
+
+void Model::save(std::string fileFullName) const
+{
+	std::ofstream fout(fileFullName);
+	if (fout.is_open())
+	{
+		fout << QString(QJsonDocument(toJson()).toJson(QJsonDocument::Compact)).toStdString();
+		fout.close();
+	} else
+	{
+		throw std::invalid_argument(QString("Warning: Файл с именем %1 невозможно открыть").
+									arg(QString::fromStdString(fileFullName)).toStdString());
+	}
+}
+
+Model* Model::load(std::string fileFullName)
+{
+	Model* model = new Model("");
+	std::ifstream fin(fileFullName);
+	if (fin.is_open())
+	{
+		std::string json;
+		std::getline(fin, json);
+		model->fromJson(QJsonDocument::fromJson(QByteArray::fromStdString(json)).object());
+		fin.close();
+		emit model->_changed();
+	} else
+	{
+		throw std::invalid_argument(QString("Warning: Файл с именем %1 невозможно открыть").
+									arg(QString::fromStdString(fileFullName)).toStdString());
+	}
+	return model;
 }
 
 void Model::fromJson(const QJsonObject& jsonObj)
@@ -35,6 +71,8 @@ void Model::fromJson(const QJsonObject& jsonObj)
 	ModelComponent::_clearMap(m_relationships);
 
 	ModelComponent::fromJson<Model>(jsonObj, this);
+
+	m_DBMS = jsonObj.value("dbms").toString().toStdString();
 
 	QJsonArray entitiesArr = jsonObj.value("entities").toArray();
 	for (QJsonArray::iterator it = entitiesArr.begin(); it != entitiesArr.end(); ++it)

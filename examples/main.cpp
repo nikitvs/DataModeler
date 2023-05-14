@@ -46,6 +46,7 @@ void configCheck()
 				 std::endl << std::endl<< std::endl;
 }
 
+// показать скрипт
 void showGeneratedScript(const Model& model)
 {
 	try {
@@ -70,62 +71,67 @@ int main(int argc, char **argv)
 	configCheck();
 
 	// при создании модели задается СУБД
-	Model model(Config::availableDBMS().at(1));
+	Model* model = new Model(Config::availableDBMS().at(1));
 
 	// создается и настраивается сущность
-	model.addEntity(new Entity(), "E1");
-	Entity* e1 = model.entity("E1");
-	e1->setAdditionalModelParameters(QString("(x,y)"));
+	model->addEntity(new Entity(), "E1");
+	Entity* e1 = model->entity("E1");
+	e1->Entity::setAdditionalModelParameters(QString("(x,y)"));
 
 	// создается и настраивается атрибут
-	std::string typeDomain = Config::availableDomains(model.dbms()).at(0);
-	std::string type = Config::availableTypes(model.dbms(), typeDomain).at(0);
+	std::string typeDomain = Config::availableDomains(model->dbms()).at(0);
+	std::string type = Config::availableTypes(model->dbms(), typeDomain).at(0);
 	e1->addAttribute(new Attribute(typeDomain,
 								   std::pair<std::string, std::string>
 								   (
 									   type,
-									   Config::typeParmetersTemplate(model.dbms(), typeDomain, type))
+									   Config::typeParmetersTemplate(model->dbms(), typeDomain, type))
 								   ), "E1A1");
 	Attribute* e1a1 = e1->attribute("E1A1");
 	e1a1->setPrimaryKey(true);
 	e1a1->setParameters("(5,3)");
 
 	// создается второй атрибут (имя задается по умолчанию)
-	type = Config::availableTypes(model.dbms(), typeDomain).at(1);
+	type = Config::availableTypes(model->dbms(), typeDomain).at(1);
 
 	Entity* e2 = new Entity();
-	model.addEntity(e2);
+	model->addEntity(e2);
 	e2->addAttribute(new Attribute(typeDomain,
 								   std::pair<std::string, std::string>
 								   (
 									   type,
-									   Config::typeParmetersTemplate(model.dbms(), typeDomain, type))
+									   Config::typeParmetersTemplate(model->dbms(), typeDomain, type))
 								   ));
 	// создается отношение (имя задается по умолчанию)
 	e2->addAttribute(new Attribute(typeDomain,
 								   std::pair<std::string, std::string>
 								   (
 									   type,
-									   Config::typeParmetersTemplate(model.dbms(), typeDomain, type))
+									   Config::typeParmetersTemplate(model->dbms(), typeDomain, type))
 								   ), "A1");
 	e2->attribute("A1")->setPrimaryKey(true);
 
-
-	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::Identifying, {"E_2", "E1"}), "R2");
-	model.addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, {"E1", "E1"}));
+	// добавление связей
+	model->addRelationship(new Relationship(Relationship::RELATION_TYPE::Identifying, {"E_2", "E1"}), "R2");
+	model->addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying, {"E1", "E1"}));
 
 	// выводится скрипт по модели
 	qDebug() << "" << "------Before---------" << "";
-	showGeneratedScript(model);
+	showGeneratedScript(*model);
 
-	model.undo();
-	model.undo();
-	model.undo();
-	model.redo();
+	model->undo();
+	model->undo();
+	model->undo();
+	model->redo();
 
 	qDebug() << "" << "------After----------" << "";
-	showGeneratedScript(model);
+	showGeneratedScript(*model);
 
+	// сохранить в файл
+	model->save("1.txt");
+
+	// загрузить из файла (репозиторий обнулился)
+	model = Model::load("1.txt");
 
     return 0;
 }
