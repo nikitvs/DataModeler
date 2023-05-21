@@ -15,18 +15,19 @@ void ModelSaver::_dropDatabaseContent(const QSqlDatabase& database) const
 }
 
 ModelSaver::ModelSaver()
-    : m_table("model")
-    , m_column("jsonmodel")
-    , m_sequence("model_id_seq")
+	: m_table("model")
+	, m_column("jsonmodel")
+	, m_sequence("model_id_seq")
 {
 	m_db = QSqlDatabase::addDatabase("QSQLITE");
-	m_db.setDatabaseName("./modelDatabase.db");
+//	m_db.setDatabaseName("./modelDatabase.db");
+	m_db.setDatabaseName(":memory:");
 
 //  проверка подключения
-    if (!m_db.open()) {
+	if (!m_db.open()) {
 		qDebug() << "Ошибка подключения к базе данных" << m_db.lastError().text();
-        return;
-    }
+		return;
+	}
 
 	ModelSaver::_createDatabaseContent(m_db);
 }
@@ -41,7 +42,7 @@ void ModelSaver::saveJson(const QJsonObject& json, int step)
 
 QJsonObject ModelSaver::loadJson(int step)
 {
-    QSqlDatabase db = QSqlDatabase::database();
+	QSqlDatabase db = QSqlDatabase::database();
 	QSqlQuery query = db.exec(QString("select %1 from %2 where id='%3'").arg(m_column, m_table, QString::number(step)));
 	query.next();
 	return QJsonDocument::fromJson(query.value(0).toByteArray()).object();
@@ -49,10 +50,10 @@ QJsonObject ModelSaver::loadJson(int step)
 
 int ModelSaver::maxStep()
 {
-    QSqlDatabase db = QSqlDatabase::database();
-    QSqlQuery query = db.exec(QString("select count(*) from %2").arg(m_table));
-    query.next();
-    return query.value(0).toInt();
+	QSqlDatabase db = QSqlDatabase::database();
+	QSqlQuery query = db.exec(QString("select count(*) from %2").arg(m_table));
+	query.next();
+	return query.value(0).toInt();
 }
 
 ModelSaver::~ModelSaver()
@@ -60,5 +61,5 @@ ModelSaver::~ModelSaver()
 	QSqlDatabase db = QSqlDatabase::database();
 	ModelSaver::_dropDatabaseContent(db);
 	if(db.isOpen())
-        db.close();
+		db.close();
 }

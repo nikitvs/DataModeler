@@ -34,6 +34,6 @@ public:
 	QJsonObject toJson() const override;						// превратить объект атрибута в json объект
 	static Attribute* fromJson(const QJsonObject& jsonObj,		// создать объект атрибута из json объекта
 							   QObject* parent = nullptr);
-    ~Attribute();
+	~Attribute();
 };
 

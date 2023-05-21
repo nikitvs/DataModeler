@@ -13,7 +13,7 @@ class Model : public ModelComponent
 	Q_OBJECT
 private:
 	std::vector<std::pair<std::string, Entity*>> m_entities;				// вектор сущностей
-	std::vector<std::pair<std::string, Relationship*>> m_relationships;     // вектор отношений между сущностями
+	std::vector<std::pair<std::string, Relationship*>> m_relationships;	 // вектор отношений между сущностями
 	std::string m_DBMS;														// СУБД
 	int m_currentStep;														// текущий шаг модели
 	ModelSaver* m_modelSaver;												// инструмент сохранения состояний модели
@@ -43,5 +43,5 @@ public:
 	QJsonObject toJson() const override;	// получить json объект из объекта модели
 	void save(std::string fileFullName) const; //сохраняет модель в файл
 	static Model* load(std::string fileFullName); //загружает модель из файла (репозиторий перезаписывается!!!!!)
-    ~Model();
+	~Model();
 };

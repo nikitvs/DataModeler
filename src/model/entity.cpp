@@ -1,8 +1,6 @@
 #include "datamodeler/model/entity.hpp"
 #include "datamodeler/model/attribute.hpp"
 #include <QJsonArray>
-//#include "entity.hpp"
-//#include "attribute.hpp"
 
 Entity::Entity(QObject* parent) : ModelComponent(parent)
 {

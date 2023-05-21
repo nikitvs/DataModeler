@@ -34,7 +34,7 @@ Relationship::RELATION_TYPE Relationship::_stringToEnum(std::string type)
 Relationship::Relationship(Relationship::RELATION_TYPE type,
 						   std::pair<std::string, std::string> entitiesPair,
 						   QObject* parent)
-    : m_type(type)
+	: m_type(type)
 	, m_entitiesPair(entitiesPair)
 	, ModelComponent(parent)
 {}
@@ -46,8 +46,8 @@ const std::pair<std::string, std::string>& Relationship::entitiesPair() const
 
 bool Relationship::setEntitiesPair(std::string entity_1, std::string entity_2)
 {
-	m_entitiesPair = {entity_1, entity_1};
-    return true;
+	m_entitiesPair = {entity_1, entity_2};
+	return true;
 }
 
 bool Relationship::isLoop() const

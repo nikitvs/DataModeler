@@ -10,10 +10,10 @@ class Relationship : public ModelComponent
 {
 	Q_OBJECT
 public:
-	enum class RELATION_TYPE {Identifying, NonIdentifying, ManyToMany};     // доступные типы отношений
+	enum class RELATION_TYPE {Identifying, NonIdentifying, ManyToMany};	 // доступные типы отношений
 
 private:
-    Relationship::RELATION_TYPE m_type;                                     // тип отношения
+	Relationship::RELATION_TYPE m_type;									 // тип отношения
 	std::pair<std::string, std::string> m_entitiesPair;						// объекты отношения (порядок важен)
 
 	static std::string _enumToString(Relationship::RELATION_TYPE type);		// преобразует enum в строку
@@ -33,5 +33,5 @@ public:
 	QJsonObject toJson() const override;									// получить json объект для отношения
 	static Relationship* fromJson(const QJsonObject& jsonObj,
 								  QObject* parent = nullptr);				// получить объект отношения из json
-    ~Relationship();
+	~Relationship();
 };

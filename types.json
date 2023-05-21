@@ -1,17 +1,17 @@
 {
   "mySQL": {
     "Numeric": {
-        "integer": "(\\(\\d+\\))?",
-        "decimal": "(\\(\\d+,\\d+\\))?"
+        "integer": "(\(\d+\))?",
+        "decimal": "(\(\d+,\d+\))?"
       }
     },
   "PostgreSQL": {
     "Character": {
-        "varchar": "(\\(\\d+\\))?",
+        "varchar": "(\(\d+\))?",
         "text": ""
     },
     "DateTime": {
-        "time": "(\\(\\d+\\))?( with time zone| without time zone)?"
+        "time": "(\(\d+\))?( with time zone| without time zone)?"
     }
   }
 }

@@ -4,7 +4,7 @@
 Attribute::Attribute(std::string typeDomain,
 					 std::pair<std::string, std::string> typeAndParametersTemplate,
 					 QObject* parent)
-    : m_typeDomain(typeDomain)
+	: m_typeDomain(typeDomain)
 	, m_type(typeAndParametersTemplate.first)
 	, m_parametersTemplate(typeAndParametersTemplate.second)
 	, ModelComponent(parent)
@@ -51,9 +51,9 @@ std::string Attribute::typeDomain() const
 // доступ к типу данных
 void Attribute::setType(std::string type, std::string parametersTemplate)
 {
-    m_type = type;
-    m_parametersTemplate = parametersTemplate;
-    m_parameters = "";
+	m_type = type;
+	m_parametersTemplate = parametersTemplate;
+	m_parameters = "";
 
 	emit _changed();
 }
@@ -88,9 +88,9 @@ std::string Attribute::parameters() const
 // задает флаг первичный ключ
 void Attribute::setPrimaryKey(bool primaryKey)
 {
-    if (primaryKey)
-        m_nullable = false;
-    m_primaryKey = primaryKey;
+	if (primaryKey)
+		m_nullable = false;
+	m_primaryKey = primaryKey;
 
 	emit _changed();
 }
@@ -102,13 +102,13 @@ bool Attribute::primaryKey() const
 // задает флаг допустимости null
 bool Attribute::setNullable(bool nullable)
 {
-    // если стоит первичный ключ - этот флаг менять нельзя
-    if (m_primaryKey)
-        return false;
+	// если стоит первичный ключ - этот флаг менять нельзя
+	if (m_primaryKey)
+		return false;
 
-    m_nullable = nullable;
+	m_nullable = nullable;
 	emit _changed();
-    return true;
+	return true;
 }
 
 bool Attribute::nullable() const
