@@ -55,6 +55,11 @@ bool Relationship::isLoop() const
 	return (m_entitiesPair.first == m_entitiesPair.second);
 }
 
+bool Relationship::hasEntity(std::string entityName) const
+{
+	return (from() == entityName) || (to() == entityName);
+}
+
 std::string Relationship::from() const
 {
 	return m_entitiesPair.first;

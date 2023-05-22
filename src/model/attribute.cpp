@@ -74,7 +74,7 @@ void Attribute::setParameters(std::string parameters)
 	if (!QRegExp(QString::fromStdString(parametersTemplate())).
 				 exactMatch(QString::fromStdString(parameters)))
 	{
-		throw std::invalid_argument(QString("Параметры типа данных не соответствуют шаблону").toStdString());
+		throw std::invalid_argument(QString("Параметры типа данных не соответствуют шаблону.").toStdString());
 	}
 
 	m_parameters = parameters;

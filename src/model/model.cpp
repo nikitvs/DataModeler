@@ -39,7 +39,7 @@ void Model::save(std::string fileFullName) const
 		fout.close();
 	} else
 	{
-		throw std::invalid_argument(QString("Файл с именем %1 невозможно открыть").
+		throw std::invalid_argument(QString("Файл с именем %1 невозможно открыть.").
 									arg(QString::fromStdString(fileFullName)).toStdString());
 	}
 }
@@ -57,7 +57,7 @@ Model* Model::load(std::string fileFullName)
 		emit model->_changed();
 	} else
 	{
-		throw std::invalid_argument(QString("Файл с именем %1 невозможно открыть").
+		throw std::invalid_argument(QString("Файл с именем %1 невозможно открыть.").
 									arg(QString::fromStdString(fileFullName)).toStdString());
 	}
 	return model;
@@ -127,11 +127,11 @@ void Model::addRelationship(Relationship* relationship, std::string name)
 {
 	if (relationship->isLoop() && relationship->type() == Relationship::RELATION_TYPE::Identifying)
 	{
-		throw std::invalid_argument(QString("Нельзя добавить в модель цикличную идентифицирующую связь %1").
+		throw std::invalid_argument(QString("Нельзя добавить в модель цикличную идентифицирующую связь %1.").
 									arg(QString::fromStdString(name)).toStdString());
 	} else if (!entity(relationship->from()) || !entity(relationship->to()))
 	{
-		throw std::invalid_argument(QString("Нельзя добавить в модель связь %1 для несуществующих сущностей").
+		throw std::invalid_argument(QString("Нельзя добавить в модель связь %1 для несуществующих сущностей.").
 									arg(QString::fromStdString(name)).toStdString());
 	}
 

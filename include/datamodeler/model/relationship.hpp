@@ -26,6 +26,7 @@ public:
 	const std::pair<std::string, std::string>& entitiesPair() const;		// получить объекты отношения
 	bool setEntitiesPair(std::string entity_1, std::string entity_2);		// задать объекты отношения
 	bool isLoop() const;													// отношение сущности самой на себя?
+	bool hasEntity(std::string entityName) const;							// есть сущность
 	std::string from() const;												// отношение ОТ данной сущности
 	std::string to() const;													// отношение К данной сущности
 	Relationship::RELATION_TYPE type() const;								// получить тип отношения
