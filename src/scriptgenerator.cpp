@@ -103,7 +103,7 @@ ScriptGenerator::Table::~Table()
 {
 	for (auto i = m_foreignPrimaryAttributes.begin(); i != m_foreignPrimaryAttributes.end(); ++i)
 		delete *i;
-	for (auto i = m_mainPrimaryAttributes.begin(); i != m_mainPrimaryAttributes.end(); ++i)
+	for (auto i = m_simpleForeignAttributes.begin(); i != m_simpleForeignAttributes.end(); ++i)
 		delete *i;
 	for (auto i = m_simpleAttributes.begin(); i != m_simpleAttributes.end(); ++i)
 		delete *i;
