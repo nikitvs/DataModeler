@@ -24,7 +24,6 @@ public:
 				 std::pair<std::string, std::string> entitiesPair,
 				 QObject* parent = nullptr);								// задается тип и объекты отношения
 	const std::pair<std::string, std::string>& entitiesPair() const;		// получить объекты отношения
-	bool setEntitiesPair(std::string entity_1, std::string entity_2);		// задать объекты отношения
 	bool isLoop() const;													// отношение сущности самой на себя?
 	bool hasEntity(std::string entityName) const;							// есть сущность
 	std::string from() const;												// отношение ОТ данной сущности
@@ -34,5 +33,4 @@ public:
 	QJsonObject toJson() const override;									// получить json объект для отношения
 	static Relationship* fromJson(const QJsonObject& jsonObj,
 								  QObject* parent = nullptr);				// получить объект отношения из json
-	~Relationship();
 };

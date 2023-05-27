@@ -25,6 +25,7 @@ private:
 		const QString& getName() const;
 		const QString& getTableName() const;
 		const QString& getAttributeString() const;
+		void setTableName(const QString& newTableName);
 	};
 
 	// класс таблицы
@@ -37,6 +38,7 @@ private:
 		QVector<TableAttribute*> m_simpleAttributes;
 		QVector<TableAttribute*> m_simpleForeignAttributes;
 		Table(const QString& entityName, const Model& model);
+		void setAllForeignAttributes(const QVector<Table*>& tables, const Model& model);
 		~Table();
 	};
 
@@ -72,7 +74,8 @@ private:
 		QString addKey(const KEY_TYPE& keyType, const QVector<QString>& attributes, const QString& tableName = "") const;
 		QString operatorName() const override;
 	public:
-		QString generateAlterScripts(const Table& table) const;
+		QString generatePrimaryKeysScripts(const Table& table) const;
+		QString generateForeignKeysScripts(const Table& table) const;
 	};
 
 private:

@@ -68,13 +68,13 @@ int main(int argc, char **argv)
 	// считать данные о СУБД
 	Config::initTypes("./types.json");
 	// проверка методов конфига
-	configCheck();
+//	configCheck();
 
 	// при создании модели задается СУБД
 	Model* model = new Model("PostgreSQL");
 
 	// создается и настраивается сущность
-	Entity* e1 = new Entity();
+	Entity* e1 = new Entity;
 	model->addEntity(e1);
 
 	// создается и настраивается атрибут
@@ -85,7 +85,6 @@ int main(int argc, char **argv)
 	e1->addAttribute(e1a1, "e1a1");
 	e1a1->setPrimaryKey(true);
 	e1a1->setParameters("(5)");
-
 	// создается второй атрибут (имя задается по умолчанию)
 	typeDomain = "DateTime";
 	type = "time";
@@ -95,33 +94,51 @@ int main(int argc, char **argv)
 	e1a2->setNullable(true);
 	e1a2->setParameters("(6) with time zone");
 
-	Entity* e2 = new Entity();
+	Entity* e2 = new Entity;
 	model->addEntity(e2);
+
+	typeDomain = "DateTime";
+	type = "timestamp";
+	typeTemplate = Config::typeParmetersTemplate(model->dbms(), typeDomain, type);
 	Attribute* e2a1 = new Attribute(typeDomain, {type, typeTemplate});
 	e2->addAttribute(e2a1, "e2a1");
 	e2a1->setPrimaryKey(true);
 	e2a1->setParameters("(5)");
 
+	typeDomain = "Character";
+	type = "text";
+	typeTemplate = Config::typeParmetersTemplate(model->dbms(), typeDomain, type);
+	Attribute* e2a2 = new Attribute(typeDomain, {type, typeTemplate});
+	e2->addAttribute(e2a2, "e2a2");
+	e2a2->setNullable(true);
+
+	Entity* e3 = new Entity;
+	model->addEntity(e3);
+
+	typeDomain = "DateTime";
+	type = "interval";
+	typeTemplate = Config::typeParmetersTemplate(model->dbms(), typeDomain, type);
+	Attribute* e3a1 = new Attribute(typeDomain, {type, typeTemplate});
+	e3->addAttribute(e3a1, "e3a1");
+	e3a1->setPrimaryKey(true);
+	e3a1->setParameters(" HOUR TO SECOND (4)");
+
 	// добавление связей
 	model->addRelationship(new Relationship(Relationship::RELATION_TYPE::Identifying,
-											{model->entityName(e1), model->entityName(e2)}));
-//	model->addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying,
-//											{model->entityName(e1), model->entityName(e1)}));
+											{model->entityName(e2), model->entityName(e1)}));
+	model->addRelationship(new Relationship(Relationship::RELATION_TYPE::NonIdentifying,
+											{model->entityName(e1), model->entityName(e3)}));
 
 //	 выводится скрипт по модели
 	qDebug() << "" << "------Before---------" << "";
 	showGeneratedScript(*model);
 
-//	model->undo();
-//	model->undo();
-//	model->undo();
 //	model->redo();
-
 //	qDebug() << "" << "------After----------" << "";
 //	showGeneratedScript(*model);
 
 //	 сохранить в файл
-//	model->save("1.txt");
+	model->save("example2.json");
 
 //	 загрузить из файла (репозиторий обнулился)
 //	model = Model::load("1.txt");

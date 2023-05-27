@@ -1,6 +1,7 @@
 #include "datamodeler/scriptgenerator.hpp"
 
 #include <QTextStream>
+#include <algorithm>
 
 QList<QString> ScriptGenerator::problemsReadyList(const Model& model)
 {
@@ -60,43 +61,146 @@ ScriptGenerator::Table::Table(const QString& entityName, const Model& model)
 		}
 	}
 	// добавить атрибуты из связей в соответсвующие списки
+//	for (auto const & relationName : model.relationships())
+//	{
+//		const Relationship* curRelationship = model.relationship(relationName);
+//		// искать где целевая сущность == наша сущность
+//		if (!(curRelationship->to() == entityName.toStdString())) continue;
+//		// определить исходную сущность
+//		std::string fromEntityName = curRelationship->from();
+//		const Entity* fromEntity = model.entity(fromEntityName);
+//		// по всем атрибутам
+//		for (auto const & curAttributeName : fromEntity->attributes())
+//		{
+//			const Attribute* curAttribute = fromEntity->attribute(curAttributeName);
+//			// только для первичных атрибутов
+//			if (!curAttribute->primaryKey()) continue;
+//			if (curRelationship->type() == Relationship::RELATION_TYPE::Identifying) {
+//				// добавить в список первичных внешних
+//				m_foreignPrimaryAttributes.push_back(new TableAttribute
+//													 (
+//														 QString::fromStdString(curAttributeName), fromEntityName.c_str(),
+//														 QString::fromStdString(TableAttribute::generateAttributeString(curAttributeName,
+//																														*curAttribute))
+//													 ));
+//			} else if (curRelationship->type() == Relationship::RELATION_TYPE::NonIdentifying) {
+//				// добавить в список обычных внешних
+//				m_simpleForeignAttributes.push_back(new TableAttribute
+//													(
+//														QString::fromStdString(curAttributeName), fromEntityName.c_str(),
+//														QString::fromStdString(TableAttribute::generateAttributeString(curAttributeName,
+//																													   *curAttribute))
+//													));
+//			}
+//		}
+	//	}
+}
+
+//QVector<ScriptGenerator::TableAttribute*> ScriptGenerator::Table::getForeignAttributes(const Table& toTable,
+//																					   const QVector<Table*>& tables,
+//																					   const Model& model)
+//{
+//	// найти для текущей таблицы все исходные таблицы из отношений
+//	QVector<QPair<const Table&,Relationship::RELATION_TYPE>> fromTablePairs;
+//	for (auto const & relationName : model.relationships())
+//	{
+//		const Relationship* curRelationship = model.relationship(relationName);
+//		// искать где целевая таблица == наша таблица
+//		if (!(curRelationship->to() == toTable.m_name.toStdString())) continue;
+//		// определить исходную таблицу
+//		fromTablePairs.push_back({**std::find_if(tables.begin(), tables.end(),
+//								 [=](Table* foundTable)
+//								 {
+//									return foundTable->m_name.toStdString() == curRelationship->from();
+//								 }),curRelationship->type()});
+//	}
+//	// получить первичные атрибуты из текущей таблицы
+//	QVector<TableAttribute*> primaryAttributes;
+//	for (auto const & primaryAttribute : toTable.m_mainPrimaryAttributes)
+//	{
+//		primaryAttributes.append(new TableAttribute(
+//									QString::fromStdString(primaryAttribute->getName().toStdString()),
+//									toTable.m_name,
+//									primaryAttribute->getAttributeString())
+//								 );
+//	}
+//	// получить первичные внешние атрибуты из исходных таблиц
+//	for (auto const & fromTablePair : fromTablePairs)
+//	{
+//		if (fromTablePair.second == Relationship::RELATION_TYPE::NonIdentifying) continue;
+//		// получить атрибуты следующей вложености
+//		auto const fromTablePrimaryAttributes = Table::getForeignAttributes(fromTablePair.first, tables, model);
+//		// заминить имя таблицы для каждого атрибута на имя текущей исходной таблицы и добавить в вектор
+//		for (auto & attribute : fromTablePrimaryAttributes)
+//		{
+//			attribute->setTableName(fromTablePair.first.m_name);
+//			primaryAttributes.append(attribute);
+//		}
+//	}
+//	return primaryAttributes;
+//}
+
+void ScriptGenerator::Table::setAllForeignAttributes(const QVector<Table*>& tables, const Model& model)
+{
+	// найти для текущей таблицы все исходные таблицы из отношений
+	QVector<QPair<Table&,Relationship::RELATION_TYPE>> fromTablePairs;
 	for (auto const & relationName : model.relationships())
 	{
 		const Relationship* curRelationship = model.relationship(relationName);
-		// если целевая сущность - наша сущность
-		if (curRelationship->to() == entityName.toStdString())
+		// искать где целевая таблица == наша таблица
+		if (!(curRelationship->to() == m_name.toStdString())) continue;
+		// определить исходную таблицу
+		fromTablePairs.push_back({**std::find_if(tables.begin(), tables.end(),
+								 [=](Table* foundTable)
+								 {
+									return foundTable->m_name.toStdString() == curRelationship->from();
+								 }),curRelationship->type()});
+	}
+	// пройтись по всем найденым таблицам
+	for (auto & fromTablePair : fromTablePairs)
+	{
+		// рекурсивно задать все внешние атрибуты для текущей исходной таблице
+		fromTablePair.first.setAllForeignAttributes(tables, model);
+
+		// взять в один вектор все первичные атрибуты из исходной таблицы
+		QVector<TableAttribute*> foreignPrimaryAttributes;
+		for (auto & attribute : fromTablePair.first.m_mainPrimaryAttributes)
 		{
-			// исходная сущность
-			std::string fromEntityName = curRelationship->from();
-			const Entity* fromEntity = model.entity(fromEntityName);
-			// по всем атрибутам
-			for (auto const & curAttributeName : fromEntity->attributes())
+			foreignPrimaryAttributes.append(attribute);
+		}
+		for (auto & attribute : fromTablePair.first.m_foreignPrimaryAttributes)
+		{
+			foreignPrimaryAttributes.append(attribute);
+		}
+
+		// пройтись по всем первичным атрибутам исходной таблицы
+		for (auto & attribute : foreignPrimaryAttributes)
+		{
+			// В зависимости от вида связи задать первичный атрибут в соответствующий вектор (если такого уже нет)
+			if (fromTablePair.second == Relationship::RELATION_TYPE::Identifying)
 			{
-				const Attribute* curAttribute = fromEntity->attribute(curAttributeName);
-				// только для первичных
-				if (!curAttribute->primaryKey()) continue;
-				if (curRelationship->type() == Relationship::RELATION_TYPE::Identifying) {
-					if (curRelationship->isLoop()) continue;
-					// список первичных внешних
-					m_foreignPrimaryAttributes.push_back(new TableAttribute
-														 (
-															 QString::fromStdString(curAttributeName), fromEntityName.c_str(),
-															 QString::fromStdString(TableAttribute::generateAttributeString(curAttributeName,
-																															*curAttribute))
-														 ));
-				} else if (curRelationship->type() == Relationship::RELATION_TYPE::NonIdentifying) {
-					// список обычных внешних
-					m_simpleForeignAttributes.push_back(new TableAttribute
-														(
-															QString::fromStdString(curAttributeName), fromEntityName.c_str(),
-															QString::fromStdString(TableAttribute::generateAttributeString(curAttributeName,
-																														   *curAttribute))
-														));
-				}
+				if (std::find_if(m_foreignPrimaryAttributes.begin(),
+								 m_foreignPrimaryAttributes.end(),
+								 [=](TableAttribute* atr){
+									return (atr->getName() == attribute->getName()) && (atr->getTableName() == attribute->getTableName());})
+						!= m_foreignPrimaryAttributes.end()) continue;
+				m_foreignPrimaryAttributes.push_back(new TableAttribute(
+											   attribute->getName(), fromTablePair.first.m_name,
+											   attribute->getAttributeString()));
+			}
+			else if (fromTablePair.second == Relationship::RELATION_TYPE::NonIdentifying)
+			{
+				if (std::find_if(m_simpleForeignAttributes.begin(),
+								 m_simpleForeignAttributes.end(),
+								 [=](TableAttribute* atr){
+									return (atr->getName() == attribute->getName()) && (atr->getTableName() == attribute->getTableName());})
+						!= m_simpleForeignAttributes.end()) continue;
+				m_simpleForeignAttributes.push_back(new TableAttribute(
+											   attribute->getName(), fromTablePair.first.m_name,
+											   attribute->getAttributeString()));
 			}
 		}
 	}
-
 }
 
 ScriptGenerator::Table::~Table()
@@ -134,6 +238,11 @@ const QString& ScriptGenerator::TableAttribute::getTableName() const
 const QString& ScriptGenerator::TableAttribute::getAttributeString() const
 {
 	return attributeString;
+}
+
+void ScriptGenerator::TableAttribute::setTableName(const QString& newTableName)
+{
+	tableName = newTableName;
 }
 
 std::string ScriptGenerator::TableAttribute::generateAttributeString(std::string attributeName,
@@ -226,7 +335,7 @@ QString ScriptGenerator::AlterTableOperators::operatorName() const
 	return "ALTER";
 }
 
-QString ScriptGenerator::AlterTableOperators::generateAlterScripts(const Table& table) const
+QString ScriptGenerator::AlterTableOperators::generatePrimaryKeysScripts(const Table& table) const
 {
 	QString scripts;
 
@@ -244,7 +353,12 @@ QString ScriptGenerator::AlterTableOperators::generateAlterScripts(const Table& 
 		scripts += headerForTableScript(table.m_name) + getEndLine() +
 				   addKey(KEY_TYPE::PRIMARY, primaryAttributes) + endingSymbol + endLine + endLine;
 	}
+	return scripts;
+}
 
+QString ScriptGenerator::AlterTableOperators::generateForeignKeysScripts(const Table& table) const
+{
+	QString scripts;
 	if (!table.m_foreignPrimaryAttributes.empty() || !table.m_simpleForeignAttributes.empty())
 	{
 		QMap<QString, QVector<QString>> foreignAttributes;
@@ -293,6 +407,11 @@ QString ScriptGenerator::generateScript(const Model& model)
 		tables.push_back(new Table(QString::fromStdString(curEntityName), model));
 	}
 
+	for (auto & table : tables)
+	{
+		table->setAllForeignAttributes(tables, model);
+	}
+
 	QString script;
 	// создать таблицы
 	for (auto const & curTable : tables)
@@ -300,11 +419,18 @@ QString ScriptGenerator::generateScript(const Model& model)
 		CreateTableOperator create;
 		script += create.generateOperatorScript(*curTable);
 	}
-	// добавить первичные и внешние ключи
+	// добавить первичные ключи
 	for (auto const & curTable : tables)
 	{
 		AlterTableOperators alter;
-		script += alter.generateAlterScripts(*curTable);
+		script += alter.generatePrimaryKeysScripts(*curTable);
+	}
+
+	// добавить внешние ключи
+	for (auto const & curTable : tables)
+	{
+		AlterTableOperators alter;
+		script += alter.generateForeignKeysScripts(*curTable);
 	}
 
 	// удалить таблицы

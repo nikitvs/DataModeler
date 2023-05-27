@@ -125,6 +125,8 @@ std::string Model::entityName(const Entity* entity) const
 
 void Model::addRelationship(Relationship* relationship, std::string name)
 {
+	if (name.empty()) name = _generateObjectName("R_", m_relationships);
+
 	if (relationship->isLoop() && relationship->type() == Relationship::RELATION_TYPE::Identifying)
 	{
 		throw std::invalid_argument(QString("Нельзя добавить в модель цикличную идентифицирующую связь %1.").
@@ -133,9 +135,17 @@ void Model::addRelationship(Relationship* relationship, std::string name)
 	{
 		throw std::invalid_argument(QString("Нельзя добавить в модель связь %1 для несуществующих сущностей.").
 									arg(QString::fromStdString(name)).toStdString());
+	} else if (relationship->type() == Relationship::RELATION_TYPE::Identifying &&
+			   (std::find_if(m_relationships.begin(), m_relationships.end(),
+							 [=](auto relPair){return
+							 (relPair.second->entitiesPair().first == relationship->entitiesPair().second) &&
+							 (relPair.second->entitiesPair().second == relationship->entitiesPair().first);})
+				!= m_relationships.end()))
+	{
+		throw std::invalid_argument(QString("Нельзя добавить в модель связь %1, т.к. уже есть обратная ей идентифицирующая связь.").
+									arg(QString::fromStdString(name)).toStdString());
 	}
 
-	if (name.empty()) name = _generateObjectName("R_", m_relationships);
 	ModelComponent::_addElement(name, relationship, m_relationships);
 	QObject::connect(relationship, &Relationship::_changed, this, &Model::_changed);
 }

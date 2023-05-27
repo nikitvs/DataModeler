@@ -15,7 +15,7 @@
         "date": "",
         "time": "(\([0-6]\))?( with time zone| without time zone)?",
         "timestamp": "(\([0-6]\))?( with time zone| without time zone)?",
-        "interval": "((YEAR|MONTH|DAY|HOUR|MINUTE|SECOND|YEAR TO MONTH|DAY TO HOUR|DAY TO MINUTE|DAY TO SECOND|HOUR TO MINUTE|HOUR TO SECOND|MINUTE TO SECOND) )?(\([0-6]\))??"
+        "interval": " (((YEAR|MONTH|DAY|HOUR|MINUTE|YEAR TO MONTH|DAY TO HOUR|DAY TO MINUTE|HOUR TO MINUTE)?)|(((SECOND|DAY TO SECOND|HOUR TO SECOND|MINUTE TO SECOND)? (\([0-6]\))?)?))"
     }
   }
 }

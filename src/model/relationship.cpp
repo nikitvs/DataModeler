@@ -44,12 +44,6 @@ const std::pair<std::string, std::string>& Relationship::entitiesPair() const
 	return m_entitiesPair;
 }
 
-bool Relationship::setEntitiesPair(std::string entity_1, std::string entity_2)
-{
-	m_entitiesPair = {entity_1, entity_2};
-	return true;
-}
-
 bool Relationship::isLoop() const
 {
 	return (m_entitiesPair.first == m_entitiesPair.second);
@@ -100,8 +94,4 @@ Relationship* Relationship::fromJson(const QJsonObject& jsonObj, QObject* parent
 												  jsonObj.value("entitiesPair").toArray().at(1).toString().toStdString()));
 	ModelComponent::fromJson<Relationship>(jsonObj, relationship);
 	return relationship;
-}
-
-Relationship::~Relationship()
-{
 }
