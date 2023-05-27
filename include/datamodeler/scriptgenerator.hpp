@@ -1,8 +1,6 @@
 #pragma once
 
 #include "datamodeler/model/attribute.hpp"
-#include "datamodeler/model/entity.hpp"
-#include "datamodeler/model/relationship.hpp"
 #include "datamodeler/model/model.hpp"
 
 // тип атрибута
@@ -89,5 +87,5 @@ private:
 
 public:
 	static QList<QString> problemsReadyList(const Model& model);		// возвращает список проблем генерации
-	static QString generateScript(const Model& model);						// возвращает sql скрипт для создание БД
+	static QString generateScript(const Model& model);					// возвращает sql скрипт для создание БД
 };

@@ -1,14 +1,24 @@
 #include "datamodeler/scriptgenerator.hpp"
+#include "datamodeler/model/entity.hpp"
+#include "datamodeler/model/relationship.hpp"
 
-#include <QTextStream>
 #include <algorithm>
 
 QList<QString> ScriptGenerator::problemsReadyList(const Model& model)
 {
+	// Составить список проблем генерации скрипта
 	QList<QString> problemsList;
+	// Пройтись по сущностям
 	for (const auto & entityName : model.entities())
 	{
 		Entity* entity = model.entity(entityName);
+		// Проверить что нет пустых сущностей
+		if (entity->attributes().empty())
+		{
+			problemsList.push_back(QString("Cущность %1 не содержит атрибутов.").
+								   arg(QString::fromStdString(entityName)));
+		}
+		// Проверить что всем атрибутам задан тип данных
 		for (const auto & attributeName : entity->attributes())
 		{
 			Attribute* attribute = entity->attribute(attributeName);
@@ -20,6 +30,7 @@ QList<QString> ScriptGenerator::problemsReadyList(const Model& model)
 			}
 		}
 	}
+	// Проверить что были разрешены отношения ManyToMany
 	for (const auto & relationName : model.relationships())
 	{
 		Relationship* relationship = model.relationship(relationName);
@@ -60,85 +71,7 @@ ScriptGenerator::Table::Table(const QString& entityName, const Model& model)
 			m_simpleAttributes.push_back(newTA);
 		}
 	}
-	// добавить атрибуты из связей в соответсвующие списки
-//	for (auto const & relationName : model.relationships())
-//	{
-//		const Relationship* curRelationship = model.relationship(relationName);
-//		// искать где целевая сущность == наша сущность
-//		if (!(curRelationship->to() == entityName.toStdString())) continue;
-//		// определить исходную сущность
-//		std::string fromEntityName = curRelationship->from();
-//		const Entity* fromEntity = model.entity(fromEntityName);
-//		// по всем атрибутам
-//		for (auto const & curAttributeName : fromEntity->attributes())
-//		{
-//			const Attribute* curAttribute = fromEntity->attribute(curAttributeName);
-//			// только для первичных атрибутов
-//			if (!curAttribute->primaryKey()) continue;
-//			if (curRelationship->type() == Relationship::RELATION_TYPE::Identifying) {
-//				// добавить в список первичных внешних
-//				m_foreignPrimaryAttributes.push_back(new TableAttribute
-//													 (
-//														 QString::fromStdString(curAttributeName), fromEntityName.c_str(),
-//														 QString::fromStdString(TableAttribute::generateAttributeString(curAttributeName,
-//																														*curAttribute))
-//													 ));
-//			} else if (curRelationship->type() == Relationship::RELATION_TYPE::NonIdentifying) {
-//				// добавить в список обычных внешних
-//				m_simpleForeignAttributes.push_back(new TableAttribute
-//													(
-//														QString::fromStdString(curAttributeName), fromEntityName.c_str(),
-//														QString::fromStdString(TableAttribute::generateAttributeString(curAttributeName,
-//																													   *curAttribute))
-//													));
-//			}
-//		}
-	//	}
 }
-
-//QVector<ScriptGenerator::TableAttribute*> ScriptGenerator::Table::getForeignAttributes(const Table& toTable,
-//																					   const QVector<Table*>& tables,
-//																					   const Model& model)
-//{
-//	// найти для текущей таблицы все исходные таблицы из отношений
-//	QVector<QPair<const Table&,Relationship::RELATION_TYPE>> fromTablePairs;
-//	for (auto const & relationName : model.relationships())
-//	{
-//		const Relationship* curRelationship = model.relationship(relationName);
-//		// искать где целевая таблица == наша таблица
-//		if (!(curRelationship->to() == toTable.m_name.toStdString())) continue;
-//		// определить исходную таблицу
-//		fromTablePairs.push_back({**std::find_if(tables.begin(), tables.end(),
-//								 [=](Table* foundTable)
-//								 {
-//									return foundTable->m_name.toStdString() == curRelationship->from();
-//								 }),curRelationship->type()});
-//	}
-//	// получить первичные атрибуты из текущей таблицы
-//	QVector<TableAttribute*> primaryAttributes;
-//	for (auto const & primaryAttribute : toTable.m_mainPrimaryAttributes)
-//	{
-//		primaryAttributes.append(new TableAttribute(
-//									QString::fromStdString(primaryAttribute->getName().toStdString()),
-//									toTable.m_name,
-//									primaryAttribute->getAttributeString())
-//								 );
-//	}
-//	// получить первичные внешние атрибуты из исходных таблиц
-//	for (auto const & fromTablePair : fromTablePairs)
-//	{
-//		if (fromTablePair.second == Relationship::RELATION_TYPE::NonIdentifying) continue;
-//		// получить атрибуты следующей вложености
-//		auto const fromTablePrimaryAttributes = Table::getForeignAttributes(fromTablePair.first, tables, model);
-//		// заминить имя таблицы для каждого атрибута на имя текущей исходной таблицы и добавить в вектор
-//		for (auto & attribute : fromTablePrimaryAttributes)
-//		{
-//			attribute->setTableName(fromTablePair.first.m_name);
-//			primaryAttributes.append(attribute);
-//		}
-//	}
-//	return primaryAttributes;
-//}
 
 void ScriptGenerator::Table::setAllForeignAttributes(const QVector<Table*>& tables, const Model& model)
 {
@@ -176,7 +109,7 @@ void ScriptGenerator::Table::setAllForeignAttributes(const QVector<Table*>& tabl
 		// пройтись по всем первичным атрибутам исходной таблицы
 		for (auto & attribute : foreignPrimaryAttributes)
 		{
-			// В зависимости от вида связи задать первичный атрибут в соответствующий вектор (если такого уже нет)
+			// В зависимости от вида связи задать первичный атрибут (если такого уже нет) в соответствующий вектор
 			if (fromTablePair.second == Relationship::RELATION_TYPE::Identifying)
 			{
 				if (std::find_if(m_foreignPrimaryAttributes.begin(),
@@ -359,33 +292,27 @@ QString ScriptGenerator::AlterTableOperators::generatePrimaryKeysScripts(const T
 QString ScriptGenerator::AlterTableOperators::generateForeignKeysScripts(const Table& table) const
 {
 	QString scripts;
-	if (!table.m_foreignPrimaryAttributes.empty() || !table.m_simpleForeignAttributes.empty())
+	// Нет внешних ключей
+	if (!(!table.m_foreignPrimaryAttributes.empty() || !table.m_simpleForeignAttributes.empty())) return scripts;
+	// Распределить все внешние атрибуты в соответствие таблицам
+	QMap<QString, QVector<QString>> tablesAndForeignAttributes;
+	for (auto const & attribute : table.m_foreignPrimaryAttributes)
 	{
-		QMap<QString, QVector<QString>> foreignAttributes;
-		for (auto const & attribute : table.m_foreignPrimaryAttributes)
-		{
-			if (!foreignAttributes.contains(attribute->getTableName()))
-				foreignAttributes.insert(attribute->getTableName(), {});
-			foreignAttributes.find(attribute->getTableName())->push_back(attribute->getName());
-		}
-		for (auto const & attribute : table.m_simpleForeignAttributes)
-		{
-			if (!foreignAttributes.contains(attribute->getTableName()))
-				foreignAttributes.insert(attribute->getTableName(), {});
-			foreignAttributes.find(attribute->getTableName())->push_back(attribute->getName());
-		}
-
-		for (auto iter = foreignAttributes.begin(); iter != foreignAttributes.end(); ++iter)
-		{
-			QVector<QString> attributes;
-			for (auto nameIter = iter.value().begin(); nameIter != iter.value().end(); ++nameIter)
-			{
-				attributes += *nameIter;
-			}
-
-			scripts += headerForTableScript(table.m_name) + getEndLine() +
-					   addKey(KEY_TYPE::FOREIGN, attributes, iter.key()) + endingSymbol + endLine + endLine;
-		}
+		if (!tablesAndForeignAttributes.contains(attribute->getTableName()))
+			tablesAndForeignAttributes.insert(attribute->getTableName(), {});
+		tablesAndForeignAttributes.find(attribute->getTableName())->push_back(attribute->getName());
+	}
+	for (auto const & attribute : table.m_simpleForeignAttributes)
+	{
+		if (!tablesAndForeignAttributes.contains(attribute->getTableName()))
+			tablesAndForeignAttributes.insert(attribute->getTableName(), {});
+		tablesAndForeignAttributes.find(attribute->getTableName())->push_back(attribute->getName());
+	}
+	// Создать скрипты по добавлению внешних ключей
+	for (auto iter = tablesAndForeignAttributes.begin(); iter != tablesAndForeignAttributes.end(); ++iter)
+	{
+		scripts += headerForTableScript(table.m_name) + getEndLine() +
+				   addKey(KEY_TYPE::FOREIGN, iter.value(), iter.key()) + endingSymbol + endLine + endLine;
 	}
 	return scripts;
 }
